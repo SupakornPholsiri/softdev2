@@ -15,8 +15,16 @@ class Test(unittest.TestCase):
     def test_outputfirst(self,mock_input):
         x = MatrixCreator().create_matrixes_from_input()
         self.assertEqual(Solution().display_sum_10_combi_from_all_matrix(x),"4\n10")
+    @patch('builtins.input',side_effect=['1','3','5 7 8','9 8 0','7 5 5'])
+    def test_outputsecond(self,mock_input):
+        x = MatrixCreator().create_matrixes_from_input()
+        self.assertEqual(Solution().display_sum_10_combi_from_all_matrix(x),"1")
+    @patch('builtins.input',side_effect=['1','6','4 5 0 2 3 4','1 2 3 4 5 6','6 4 5 3 2 1','1 2 3 4 5 6','1 2 3 4 5 6','2 3 7 8 9 0'])
+    def test_outputthird(self,mock_input):
+        x = MatrixCreator().create_matrixes_from_input()
+        self.assertEqual(Solution().display_sum_10_combi_from_all_matrix(x),"13")
         
-
+        
 class MatrixCreator:
     def create_matrixes_from_input(self):
         matrixes = []

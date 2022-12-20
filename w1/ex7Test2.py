@@ -19,6 +19,26 @@ class Test(unittest.TestCase):
 130
 30
 """
+    Test2 ="""5 100 -20
+5
+15
+20
+35
+40
+"""
+    Test3 = """10 50 -20
+6
+7
+10
+12
+14
+25
+85
+90
+100
+80
+"""
+
     @patch('builtins.open',new=mock_open(read_data=Test1))
     def test_inputfirst(self):
         x = InputStruct('/dev/null')
@@ -28,9 +48,24 @@ class Test(unittest.TestCase):
     def test_outputfirst(self):
         y = Solution()
         self.assertEqual(y.EX7(InputStruct('/dev/null')),(50,150,20,70,90,40,130,30))
-        
-        
-
+    @patch('builtins.open',new=mock_open(read_data=Test2))
+    def test_inputsecond(self):
+        x = InputStruct('/dev/null')
+        result = x.num_array
+        self.assertEqual(result,[5,15,20,35,40])
+    @patch('builtins.open',new=mock_open(read_data=Test2))
+    def test_outputsecond(self):
+         y = Solution()
+         self.assertEqual(y.EX7(InputStruct('/dev/null')),(50,150,20,70,90,40,130,30))
+    @patch('builtins.open',new=mock_open(read_data=Test3))
+    def test_inputthird(self):
+        x = InputStruct('/dev/null')
+        result = x.num_array
+        self.assertEqual(result,[6,7,10,12,14,25,85,90,100,80])
+    @patch('builtins.open',new=mock_open(read_data=Test3))
+    def test_outputthird(self):
+        y = Solution()
+        self.assertEqual(y.EX7(InputStruct('/dev/null')),(50,150,20,70,90,40,130,30))
 class InputStruct:
     def __init__(self, filename):
         infile = open(filename, 'r')
