@@ -25,12 +25,26 @@ class FakeInputStructWithNoSolution:
 
 class Test(unittest.TestCase):
     Test1 ="16 200 -10\n12\n70\n1\n999\n50\n20\n1000\n150\n300\n200\n90\n900\n40\n140\n130\n30"
+    Test2 ="6 200 -10\n12\n70\n1\n999\n50\n20"
+    Test3 ="8 100 -10\n0\n1\n2\n3\n4\n5\n6\n7"
 
     @patch('builtins.open',new=mock_open(read_data=Test1))
     def test_inputfirst(self):
         x = InputStruct('/dev/null')
         result = x.num_array
         self.assertEqual(result,[12,70,1,999,50,20,1000,150,300,200,90,900,40,140,130,30])
+
+    @patch('builtins.open',new=mock_open(read_data=Test2))
+    def test_inputsecond(self):
+        x = InputStruct('/dev/null')
+        result = x.num_array
+        self.assertEqual(result,[12,70,1,999,50,20])
+
+    @patch('builtins.open',new=mock_open(read_data=Test3))
+    def test_inputthird(self):
+        x = InputStruct('/dev/null')
+        result = x.num_array
+        self.assertEqual(result,[0,1,2,3,4,5,6,7])
 
     @patch('__main__.InputStruct', new=FakeInputStruct)
     def test_outputfirst(self):
