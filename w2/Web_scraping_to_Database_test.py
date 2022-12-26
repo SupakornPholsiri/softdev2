@@ -4,6 +4,10 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from sqlalchemy import create_engine
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # URL for scrapping the data
 url = 'https://www.worldometers.info/coronavirus/countries-where-coronavirus-has-spread/'
 
@@ -32,8 +36,7 @@ df = pd.DataFrame(data, columns = ["country", "confirmed","deaths","continent"])
 print(df)
 
 # Insert the datas from dataframe to covid_data_table in covid_data_db database
-password = "0000" #Your postgres password
-engine = create_engine(f"postgresql+psycopg2://postgres:{password}@localhost/covid_data_db")
+engine = create_engine(f"postgresql+psycopg2://postgres:{os.getenv('password')}@localhost/covid_data_db")
 connection = engine.connect()
 df.to_sql("covid_data_table", connection, if_exists='replace', index = False)
 connection.close()
