@@ -34,4 +34,7 @@ print(df)
 # Insert the datas from dataframe to covid_data_table in covid_data_db database
 password = "0000" #Your postgres password
 engine = create_engine(f"postgresql+psycopg2://postgres:{password}@localhost/covid_data_db")
-df.to_sql("covid_data_table", engine, if_exists='replace', index = False)
+connection = engine.connect()
+df.to_sql("covid_data_table", connection, if_exists='replace', index = False)
+connection.close()
+engine.dispose()
