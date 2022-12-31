@@ -11,6 +11,8 @@ def crawl(url, index = {}):
     links_html = soup.find_all("a", href = True)
     links = set()
     for link_html in links_html:
+        if not link_html['href']:
+            continue
         print(link_html['href'])
         if link_html['href'].startswith("//"):
             links.add(f'https:{link_html["href"]}')
@@ -21,9 +23,9 @@ def crawl(url, index = {}):
     print(links)
     
     text = soup.text.lower()
-    text = re.sub(r"[?,<>\[\]()\s_\|]"," ",text)
+    #text = re.sub(r"[?,<>\[\]()\s_\|]"," ",text)
     for word in text.split():
-        if pythainlp.util.countthai(word) != 0:
+        """if pythainlp.util.countthai(word) != 0:
             for i in pythainlp.word_tokenize(word, engine = 'newmm'):
                 if not i:
                     continue
@@ -31,7 +33,7 @@ def crawl(url, index = {}):
                     index[i] = [url]
                 elif url not in index[i]:
                     index[i].append(url)
-            continue
+            continue"""
         if not word:
             continue
         if word not in index:
