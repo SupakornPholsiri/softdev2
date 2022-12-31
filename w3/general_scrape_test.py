@@ -43,7 +43,7 @@ def crawl(url, index = {}):
 
     return index
 
-urls = ["https://thairath.co.th"]
+urls = []
 index = {}
 for url in urls:
     index.update(crawl(url))

@@ -1,5 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+from pythainlp import word_tokenize
+import csv
+from collections import Counter
+import re
 
 class Scraper:
 
@@ -9,7 +13,10 @@ class Scraper:
         self.soup = BeautifulSoup(html.text, "html.parser")
 
     def get_text(self):
-        text = self.soup.text.lower()
+        text = ""
+        texts = self.soup.find_all(text = True)
+        for i in texts:
+            text = f"{text} {i.text.lower()}"
         return text
 
     def get_links(self):
@@ -26,14 +33,33 @@ class Scraper:
                 links.add(link_html['href'])
         return links
 
-class Spider:
-    def __init__():
-        
+class Index:
+
+    def __init__(self):
+        self.index = {}
+
+    def modify_index_with_tokens(self, tokens, url):
+        pattern = re.compile(r"[\n/,.\[\]()_:;\?! ‘\xa0©=“”{}]")
+        for token in tokens:
+            if not token or pattern.match(token):
+                continue
+            if token not in self.index:
+                self.index[token] = [url]
+            elif url not in self.index[token]:
+                self.index[token].append(url)
+
+        return self.index
+
+    def save_to_file(self):
+        with open('index.csv', 'w') as f:
+            for key in self.index.keys():
+                f.write(f"{key}, {self.index[key]}\n")
+        f.close()
+
 
 scraper = Scraper()
+index = Index()
 scraper.generate_soup("https://www.blog.datahut.co/post/how-to-build-a-web-crawler-from-scratch")
-print(scraper.get_text())
-print(scraper.get_links())
-scraper.generate_soup("https://www.xn--42c2bf1bzl.com/blogs")
-print(scraper.get_text())
-print(scraper.get_links())
+index.modify_index_with_tokens(word_tokenize(scraper.get_text()), scraper.url)
+index.save_to_file()
+
