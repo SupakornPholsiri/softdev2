@@ -39,7 +39,7 @@ class Index:
         self.index = {}
 
     def modify_index_with_tokens(self, tokens, url):
-        pattern = re.compile(r"[\n/,.\[\]()_:;\?! ‘\xa0©=“”{}]")
+        pattern = re.compile(r"[\n/,.\[\]()_:;\?! ‘\xa0©=“”{}_&<>’\|]")
         for token in tokens:
             if not token or pattern.match(token):
                 continue
@@ -51,7 +51,7 @@ class Index:
         return self.index
 
     def save_to_file(self):
-        with open('index.csv', 'w') as f:
+        with open('index.csv', 'w', encoding="utf-8") as f:
             for key in self.index.keys():
                 f.write(f"{key}, {self.index[key]}\n")
         f.close()
@@ -59,7 +59,8 @@ class Index:
 
 scraper = Scraper()
 index = Index()
-scraper.generate_soup("https://www.blog.datahut.co/post/how-to-build-a-web-crawler-from-scratch")
+#"https://www.blog.datahut.co/post/how-to-build-a-web-crawler-from-scratch"
+scraper.generate_soup("https://www.thairath.co.th")
 index.modify_index_with_tokens(word_tokenize(scraper.get_text()), scraper.url)
 index.save_to_file()
 
