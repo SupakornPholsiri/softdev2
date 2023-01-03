@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from pythainlp import word_tokenize
 import csv
-from collections import Counter
 import re
 
 class Scraper:
@@ -39,7 +38,7 @@ class Index:
         self.index = {}
 
     def modify_index_with_tokens(self, tokens, url):
-        pattern = re.compile(r"[\n/,.\[\]()_:;\?! ‘\xa0©=“”{}_&<>’\|]")
+        pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
         for token in tokens:
             if not token or pattern.match(token):
                 continue
@@ -53,14 +52,24 @@ class Index:
     def save_to_file(self):
         with open('index.csv', 'w', encoding="utf-8") as f:
             for key in self.index.keys():
-                f.write(f"{key}, {self.index[key]}\n")
+                f.write(f'"{key}","{self.index[key]}"\n')
         f.close()
 
+    def read_file(self):
+        #Temporary used for output testing.
+        with open('index.csv', 'r', encoding="utf-8") as f:
+            filecontent = csv.reader(f)
+            self.index = {row[0]:eval(row[1]) for row in filecontent}
+        f.close()
 
-scraper = Scraper()
+#scraper = Scraper()
 index = Index()
-#"https://www.blog.datahut.co/post/how-to-build-a-web-crawler-from-scratch"
-scraper.generate_soup("https://www.thairath.co.th")
-index.modify_index_with_tokens(word_tokenize(scraper.get_text()), scraper.url)
-index.save_to_file()
+#scraper.generate_soup("https://www.thairath.co.th")
+#index.modify_index_with_tokens(word_tokenize(scraper.get_text()), scraper.url)
+#scraper.generate_soup("https://www.blog.datahut.co/post/how-to-build-a-web-crawler-from-scratch")
+#index.modify_index_with_tokens(word_tokenize(scraper.get_text()), scraper.url)
+#index.save_to_file()
+index.read_file()
+for i in index.index:
+    print(i, index.index[i])
 
