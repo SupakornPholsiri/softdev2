@@ -3,6 +3,11 @@ from bs4 import BeautifulSoup
 from pythainlp import word_tokenize
 import csv
 import re
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+import time  
 
 class Index:
 
@@ -50,15 +55,15 @@ class Spider:
     def get_base_domain(self, url):
         return "/".join(url.split("/")[0:3])
 
-    def add_links_to_queue(self, links):
-        for link in links:
+    def add_links_to_queue(self):
+        for link in self.get_links():
             if link in Spider.crawled:
                 continue
             Spider.queue.append(link)
 
     def crawl(self, link):
         self.generate_soup(link)
-        self.add_links_to_queue(self.get_links())
+        self.add_links_to_queue()
         Spider.crawled.append(link)
         return self.get_text()
 
@@ -67,6 +72,8 @@ class Spider:
         self.base_domain = self.get_base_domain(self.url)
         html = requests.get(url)
         self.soup = BeautifulSoup(html.text, "html.parser")
+        
+        
 
     def get_text(self):
         text = ""
