@@ -43,7 +43,7 @@ class SeleniumInteract():
         # for nav in range(container):
         #     self.driver.find_element(by.XPATH,'//')
         #     container[nav].click()
-        container = driver.find_elements(by.XPATH,"//*[contains(@id,'Navbar')]")
+        container = driver.find_elements(by.XPATH,".//*[contains(@id,'Navbar')]")
         for nav in range(len(container)):
             try:
                 url = container[nav].get_attribute('href')
