@@ -44,5 +44,12 @@ class Spider_test(unittest.TestCase):
         scraper.add_links_to_queue()
         assert sorted(Spider.queue) == sorted(["https://www.test.co.th", "https://www.dummy.com", "https://www.not_used.com"])
 
+    @patch("general_scrape_test_w4.Spider.queue", new=["https://Softdev.co.th", "https:Softdev.co.th/Help/me"])
+    @patch("general_scrape_test_w4.Spider.get_links", return_value = {"https://www.test.co.th","https://www.dummy.com"})
+    def test_add_links_to_exsiting_queue(self, mock_get_links):
+        scraper = Spider("https://www.not_used.com")
+        scraper.add_links_to_queue()
+        assert sorted(Spider.queue) == sorted(["https://Softdev.co.th", "https:Softdev.co.th/Help/me", "https://www.test.co.th", "https://www.dummy.com", "https://www.not_used.com"])
+
 if __name__ == "__main__" :
     unittest.main()
