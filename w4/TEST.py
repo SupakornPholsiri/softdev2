@@ -8,6 +8,11 @@ from bs4 import BeautifulSoup
 from pythainlp import word_tokenize
 import csv
 import re
+from pymongo import MongoClient
+from pymongo import MongoClient
+client = MongoClient('localhost:27017')
+SearchEngine = client['SearchEngine']
+dbweb = SearchEngine['WebDB']
 
 options = webdriver.ChromeOptions()
 # options.add_argument('--headless')
@@ -23,7 +28,6 @@ driver.maximize_window()
 driver.get(Home)
 container = driver.find_elements(By.XPATH,".//*[contains(@class,'nav')]")
 # container2 = driver.find_elements(By.XPATH,"//*[@class='pagination']/child::li")
-print(container)
 
 # for nav in range(len(container2)):
 #      try:
@@ -53,13 +57,13 @@ for nav in range(len(container)):
                 driver.get(Home+suburl)
                 source = driver.page_source
                 soup = BeautifulSoup(source,"html.parser")
-                print(soup.prettify())
+                dbweb.insert_one({"id":1,"user_name":soup.text})
                 count += 1
             
             driver.get(Home)    
             source = driver.page_source
             soup = BeautifulSoup(source,"html.parser")
-            print(soup.prettify())
+            dbweb.insert_one({"id":1,"user_name":soup.text})
     except:
         continue
    
