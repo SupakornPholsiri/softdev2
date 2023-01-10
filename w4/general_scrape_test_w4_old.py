@@ -72,8 +72,6 @@ class Spider:
         self.base_domain = self.get_base_domain(self.url)
         html = requests.get(url)
         self.soup = BeautifulSoup(html.text, "html.parser")
-        
-        
 
     def get_text(self):
         text = ""
