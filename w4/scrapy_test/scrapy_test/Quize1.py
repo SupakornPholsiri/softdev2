@@ -6,8 +6,6 @@ from selenium.webdriver.support.select import Select
 import time  
 import pyautogui
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
-# options.add_argument('--disable-gpu')
 options.add_experimental_option("detach", True)
 PATH = 'C:\Program Files (x86)\chromedriver.exe'
 s=service = Service(executable_path=PATH)
