@@ -46,7 +46,6 @@ class Index:
 
 class Spider:
     #The web crawler
-
     queue = []
     crawled = []
     
@@ -63,14 +62,8 @@ class Spider:
     #Add links gained from scraping to queue
     def add_links_to_queue(self):
         links = self.get_links()
-        if len(links) == 0:
-            return
         for link in links:
-            if link in Spider.crawled:
-                continue
-            if link in Spider.queue:
-                continue
-            if link == self.url:
+            if link in Spider.crawled or link in Spider.queue or link == self.url:
                 continue
             Spider.queue.append(link)
 
