@@ -1,3 +1,4 @@
+from queue import Queue
 from bs4 import BeautifulSoup
 import requests
 
@@ -5,6 +6,8 @@ class Spider:
     #The web crawler
     queue = []
     crawled = []
+
+    queue_front = 0
     
     #Create the spider with url as starting point
     def __init__(self, url, depth = None):
@@ -25,9 +28,10 @@ class Spider:
             Spider.queue.append(link)
 
     #Scrape the links and text from website
-    def crawl(self, link):
+    def crawl(self):
         self.add_links_to_queue()
-        Spider.crawled.append(link)
+        Spider.crawled.append(self.url)
+        Spider.queue_front += 1
         return self.get_text()
 
     #Create the BeautifulSoup object and set url and base domain
