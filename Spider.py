@@ -1,7 +1,6 @@
 from queue import Queue
 from bs4 import BeautifulSoup
 import requests
-
 class Spider:
     #The web crawler
     queue = []
@@ -10,8 +9,10 @@ class Spider:
     queue_front = 0
     
     #Create the spider with url as starting point
-    def __init__(self, url, depth = None):
+    def __init__(self, url=None, depth=None):
         self.depth = depth
+        if url == None:
+            pass
         if url not in Spider.queue and url not in Spider.crawled:
             Spider.queue.append(url)
 
@@ -31,11 +32,11 @@ class Spider:
     def crawl(self):
         self.add_links_to_queue()
         Spider.crawled.append(self.url)
-        Spider.queue_front += 1
         return self.get_text()
 
     #Create the BeautifulSoup object and set url and base domain
-    def generate_soup(self, url):
+    def generate_soup(self, url:str):
+        Spider.queue_front += 1
         self.url = url
         self.base_domain = self.get_base_domain(self.url)
         html = requests.get(url)
