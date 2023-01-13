@@ -52,14 +52,6 @@ for nav in range(len(container)):
             driver.get(Home+url)
             sub_container = driver.find_elements(By.TAG_NAME,'a')
             count = 0
-            while count < len(sub_container):
-                suburl = sub_container[count].get_attribute('href')
-                driver.get(Home+suburl)
-                source = driver.page_source
-                soup = BeautifulSoup(source,"html.parser")
-                dbweb.insert_one({"id":1,"user_name":soup.text})
-                count += 1
-            
             driver.get(Home)    
             source = driver.page_source
             soup = BeautifulSoup(source,"html.parser")
