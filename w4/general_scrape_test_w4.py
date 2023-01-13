@@ -8,10 +8,14 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time  
+from pymongo import MongoClient
+client = MongoClient('localhost:27017')
+SearchEngine = client['SearchEngine']
+dbweb = SearchEngine['WebDB']
+from collections import Counter
 
 class Index:
     #Class for indexes. Methods related to index are stored here.
-
     def __init__(self):
         self.index = {}
 
@@ -21,13 +25,15 @@ class Index:
         pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
         for token in tokens:
             #Remove None, punctuations and special characters tokens
+            counter = Counter(token)
             if not token or pattern.match(token):
                 continue
             if token not in self.index:
-                self.index[token] = [url]
+                self.index[token] = [counter[token],url]
+                dbweb.insert_one({"key":token,"value":self.index[token]})
             elif url not in self.index[token]:
                 self.index[token].append(url)
-
+                dbweb.update_one({"key":token,"value":self.index[token]})
         return self.index
 
     #Save current index to csv file

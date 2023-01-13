@@ -47,19 +47,6 @@ Dropdown.click()
 driver.implicitly_wait(10)
 pyautogui.press('down',presses=2)
 pyautogui.press('enter',presses=2)
-# time.sleep(2)
-# element = driver.find_element(By.XPATH,'/html/body')
-# element.send_keys(Keys.ARROW_DOWN,Keys.RETURN);
-# ClickDropdown = driver.find_element(By.XPATH,'//*[@id="mG61Hd"]/div[2]/div/div[2]/div[3]/div/div/div[2]/div/div[1]/div[1]/div[3]').click()
-# option1 = "Never gonna"
-# span = driver.find_element(By.CLASS_NAME,'vRMGwf oJeWuf')
-# for i in span:
-#   try:
-#     i.click()
-#   except:
-#     continue
-# ClickDropdown.select_by_visible_text("Never gonna")
-# Dropdown.select_by_value("Never gonna")
 driver.implicitly_wait(10)
 satisfy = driver.find_element(By.XPATH,'//*[@id="mG61Hd"]/div[2]/div/div[2]/div[4]/div/div/div[2]/div[1]/span/div/label[11]/div[2]/div/div/div[3]/div').click()
 send = driver.find_element(By.XPATH,'//*[@id="mG61Hd"]/div[2]/div/div[3]/div[1]/div[1]/div[2]/span').click()
