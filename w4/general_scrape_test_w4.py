@@ -35,7 +35,6 @@ class Index:
                 self.index[token].append(url)
                 dbweb.update_one({"key":token,"value":self.index[token]})
         return self.index
-
     #Save current index to csv file
     def save_to_file(self):
         with open('index.csv', 'w', encoding="utf-8") as f:
