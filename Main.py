@@ -1,8 +1,6 @@
 from Spider import Spider
 from Index import Index
 from pythainlp import word_tokenize
-import concurrent.futures
-import threading
 import time
 
 def main(index:Index):
