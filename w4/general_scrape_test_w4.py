@@ -31,11 +31,11 @@ class Index:
             if token not in self.index.values()  :
                 self.index[token] = {url:counter[token]}
                 dbweb.insert_one({"key":token,"value":self.index[token]})
-            elif url not in self.index["value"]:
-                self.index["value"][url] = str(counter[token])
+            elif url not in self.index.values():
+                self.index[token][url] = str(counter[token])
                 dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index["value"]}})
-            elif url in self.index["value"] and self.index["value"][url] != counter[token]:
-                self.index["value"][url] = str(counter[token])
+            elif url in self.index.values() and self.index.values()[url] != counter[token]:
+                self.index[token][url] = str(counter[token])
                 dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index["value"]}})
         return self.index
     #Save current index to csv file
