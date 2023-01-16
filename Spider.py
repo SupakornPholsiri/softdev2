@@ -12,7 +12,7 @@ class Spider:
     def __init__(self, url=None, depth=None):
         self.depth = depth
         if url == None:
-            pass
+            return
         if url not in Spider.queue and url not in Spider.crawled:
             Spider.queue.append(url)
 
@@ -36,16 +36,18 @@ class Spider:
 
     #Create the BeautifulSoup object and set url and base domain
     def generate_soup(self, url:str):
+        if url not in Spider.queue: return False
         Spider.queue_front += 1
+        html = requests.get(url)
         self.url = url
         self.base_domain = self.get_base_domain(self.url)
-        html = requests.get(url)
         self.soup = BeautifulSoup(html.text, "html.parser")
+        return True
         
     #Get text from website
     def get_text(self):
         text = ""
-        texts = self.soup.find_all(text = True)
+        texts = self.soup.find_all(string = True)
         for i in texts:
             text = f"{text} {i.text.lower()}"
         return text
