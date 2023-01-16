@@ -11,7 +11,6 @@ import re
 pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
 
 for num in range(len(tokens)):
-            
             print(index)
             #Remove None, punctuations and special characters tokens
             counter = Counter(tokens)
