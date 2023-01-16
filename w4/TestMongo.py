@@ -6,21 +6,21 @@ dbweb = SearchEngine['WebDB']
 from collections import Counter
 tokens = ["a"]
 url = "dummy2.com"
-index = {}
+index = {"key":"a","value":{"dummy1.com":"1"}}
 import re
 pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
 
-for num in range(len(tokens)):
-            print(index)
+        #Pattern for removing most punctuations and special characters tokens
+counter = Counter(tokens)
+for token in tokens:
             #Remove None, punctuations and special characters tokens
-            counter = Counter(tokens)
-            if not tokens[num] or pattern.match(tokens[num]):
-                continue
-            if tokens[num] not in index:
-                index[tokens[num]] = {url:counter[tokens[num]]}
-                dbweb.insert_one({"key":tokens[num],"value":index[tokens[num]]})
-            elif url not in index[tokens[num]]:
-                index[tokens[num]].append({url:counter[tokens[num]]})
-                dbweb.find_one_and_update({'key':tokens[num],"value":index[tokens[num]]})
+    if not token or pattern.match(token):
+        continue
+    if token not in index.values()  :
+        index[token] = {url:counter[token]}
+        dbweb.insert_one({"key":token,"value":index[token]})
+    elif url not in index["value"]:
+        index["value"][url] = str(counter[token])
+        dbweb.find_one_and_update({"key":token},{'$set':{"value":index["value"]}})
                 
             
