@@ -1,5 +1,10 @@
 import re
 import csv
+from pymongo import MongoClient
+client = MongoClient('localhost:27017')
+SearchEngine = client['SearchEngine']
+dbweb = SearchEngine['WebDB']
+from collections import Counter
 
 class Index:
     #Class for indexes. Methods related to index are stored here.
@@ -10,16 +15,21 @@ class Index:
     #Add or add onto keyword index using the tokens.
     def modify_index_with_tokens(self, tokens, url):
         #Pattern for removing most punctuations and special characters tokens
-        pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"*]')
+        pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
+        counter = Counter(tokens)
         for token in tokens:
             #Remove None, punctuations and special characters tokens
             if not token or pattern.match(token):
                 continue
-            if token not in self.index:
-                self.index[token] = [url]
+            if token not in self.index :
+                self.index[token] = {url:counter[token]}
+                dbweb.insert_one({"key":token,"value":self.index[token]})
             elif url not in self.index[token]:
-                self.index[token].append(url)
-
+                self.index[token][url] = counter[token]
+                dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index[token]}})
+            elif url in self.index[token] and self.index[token][url] != counter[token]:
+                self.index[token][url] = counter[token]
+                dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index[token]}})
         return self.index
 
     #Save current index to csv file
