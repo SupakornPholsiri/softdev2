@@ -32,6 +32,23 @@ class Index:
                 dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index[token]}})
         return self.index
 
+    #Add or add onto keyword index using the tokens.
+    def modify_index_with_tokens_no_mongo(self, tokens, url):
+        #Pattern for removing most punctuations and special characters tokens
+        pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
+        counter = Counter(tokens)
+        for token in tokens:
+            #Remove None, punctuations and special characters tokens
+            if not token or pattern.match(token):
+                continue
+            if token not in self.index :
+                self.index[token] = {url:counter[token]}
+            elif url not in self.index[token]:
+                self.index[token][url] = counter[token]
+            elif url in self.index[token] and self.index[token][url] != counter[token]:
+                self.index[token][url] = counter[token]
+        return self.index
+
     #Save current index to csv file
     def save_to_file(self):
         with open('index.csv', 'w', encoding="utf-8") as f:
