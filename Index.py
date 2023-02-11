@@ -60,5 +60,18 @@ class Index:
         #Temporary used for output testing.
         with open('index.csv', 'r', encoding="utf-8") as f:
             filecontent = csv.reader(f)
+            for row in filecontent:
+                print(row[0])
             self.index = {row[0]:eval(row[1]) for row in filecontent}
         f.close()
+
+    def read_database(self):
+        index = []
+        for col in dbweb.find({},{"_id":0, "key":1, "value":1}):
+            self.index[col["key"]] = col["value"]
+
+    def search(self, query):
+        try:
+            return dbweb.find_one({"key":query})["value"]
+        except:
+            return "Keyword not found."

@@ -84,5 +84,30 @@ class Spider_testcases(unittest.TestCase):
         spider.soup = BeautifulSoup("<!DOCTYPE html><html><body><h1>This is a</h1><p>blank HTML page</p></body></html>", "html.parser")
         assert spider.get_text() == "  this is a blank html page"
 
+    @patch.object(Spider, "add_links_to_queue")
+    @patch.object(Spider, "get_text", return_value = "Test")
+    def test_crawl(self, mock_get_text, mock_add_links_to_queue):
+        spider = Spider("https://www.unittest.com")
+        spider.url = "https://www.unittest.com"
+        text = spider.crawl()
+        assert text == "Test"
+        assert spider.url in Spider.crawled
+        mock_add_links_to_queue.assert_called_once_with()
+
+    @patch.object(Spider, "get_links", return_value = {"https://www.unittest.com", "https://www.test.com", "http://www.unit.com"})
+    def test_add_links_to_queue(self, mock_get_links):
+        spider = Spider("https://www.unittest.com")
+        spider.url = "https://www.unittest.com"
+        spider.add_links_to_queue()
+        assert sorted(Spider.queue) == sorted(["http://www.unit.com", "https://www.unittest.com", "https://www.test.com"])
+
+    @patch.object(Spider, "get_links", return_value = {"https://www.unittest.com", "https://www.test.com", "http://www.unit.com"})
+    @patch.object(Spider, "crawled", new = ["https://www.test.com"])
+    def test_add_links_to_queue_with_duplicate_in_crawled_or_current_url(self, mock_get_links):
+        spider = Spider("https://www.unittest.com")
+        spider.url = "https://www.unit.com"
+        spider.add_links_to_queue()
+        assert sorted(Spider.queue) == sorted(["http://www.unit.com", "https://www.unittest.com"])      
+
 if __name__ == "__main__":
     unittest.main()
