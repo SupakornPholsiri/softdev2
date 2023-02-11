@@ -1,5 +1,7 @@
 import re
 import csv
+import nltk
+from nltk.stem import 	WordNetLemmatizer
 from pymongo import MongoClient
 client = MongoClient('localhost:27017')
 SearchEngine = client['SearchEngine']
@@ -75,3 +77,12 @@ class Index:
             return dbweb.find_one({"key":query})["value"]
         except:
             return "Keyword not found."
+    
+    #ยังไม่ได้เชื่อม
+    def lemmatization(self,tokens):
+        wordnet_lemmatizer = WordNetLemmatizer()
+        lemmatized = []
+        for w in tokens:
+            lemmatized.append(wordnet_lemmatizer.lemmatize(w))
+        return lemmatized
+    

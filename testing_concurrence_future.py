@@ -43,3 +43,4 @@ if __name__ == "__main__":
     index.save_to_file()
     stop = time.time()
     print(stop-start)
+    
