@@ -18,8 +18,9 @@ class Index:
     def modify_index_with_tokens(self, tokens, url):
         #Pattern for removing most punctuations and special characters tokens
         pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
-        counter = Counter(tokens)
-        for token in tokens:
+        lemmatized =  self.lemmatization(tokens)
+        counter = Counter(lemmatized)
+        for token in lemmatized:
             #Remove None, punctuations and special characters tokens
             if not token or pattern.match(token):
                 continue
