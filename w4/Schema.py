@@ -14,5 +14,5 @@ index = {"a":{"url":"1"}}
 if "url" in index.values():
     print("F")
 for i in index.values():
-    print(type(i))
+    print(i)
 

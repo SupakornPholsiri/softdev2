@@ -48,3 +48,4 @@ if __name__ == "__main__":
     ref_index.save_to_file()
     stop = time.time()
     print(stop-start)
+    
