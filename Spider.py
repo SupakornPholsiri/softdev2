@@ -5,8 +5,26 @@ class Spider:
     #The web crawler
     queue = []
     crawled = []
+    base_domains = ["https://www.riskofrain.com", "https://riskofrain.fandom.com", "https://riskofrain2.fandom.com"]
 
     queue_front = 0
+    queue_back = 1
+
+    depth = 0
+    max_depth = 2
+
+    @classmethod
+    def set_base_domains(cls, domains):
+        cls.base_domains = domains
+
+    @classmethod
+    def try_change_depth(cls):
+        if cls.max_depth == cls.depth:
+            return False
+        if cls.queue_front == cls.queue_back+1:
+            cls.depth += 1
+            return True
+        return False
     
     #Create the spider with url as starting point
     def __init__(self, url=None, depth=None):
@@ -30,17 +48,21 @@ class Spider:
 
     #Scrape the links and text from website
     def crawl(self):
-        self.add_links_to_queue()
+        print(Spider.depth)
+        if Spider.max_depth > Spider.depth:
+            self.add_links_to_queue()
         Spider.crawled.append(self.url)
-        return self.get_text()
+        return (self.get_text(), self.get_links())
 
     #Create the BeautifulSoup object and set url and base domain
     def generate_soup(self, url:str):
         if url not in Spider.queue: return False
         Spider.queue_front += 1
+        depth_change = Spider.try_change_depth()
+        if depth_change :
+            Spider.queue_back = len(Spider.queue)
         html = requests.get(url)
         self.url = url
-        self.base_domain = self.get_base_domain(self.url)
         self.soup = BeautifulSoup(html.text, "html.parser")
         return True
         
@@ -90,9 +112,10 @@ class Spider:
                 continue
             if href.startswith("//"):
                 continue #links.add(f'https:{link_html["href"]}')
-            if href.startswith("https://") or href.startswith("http://") :
-                if href.startswith(self.base_domain):
-                    links.add(href)
+            if href.startswith("https://") or href.startswith("http://"):
+                for domain in self.base_domains:
+                    if href.startswith(domain):
+                        links.add(href)
             else:
                 links.add(self.parse_url(href, self.url))
         return links

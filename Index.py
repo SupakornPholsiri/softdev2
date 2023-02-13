@@ -51,14 +51,14 @@ class Index:
 
     #Save current index to csv file
     def save_to_file(self):
-        with open('index.csv', 'w', encoding="utf-8") as f:
+        with open('index2.csv', 'w', encoding="utf-8") as f:
             for key in self.index.keys():
                 f.write(f'"{key}","{self.index[key]}"\n')
         f.close()
 
     def read_file(self):
         #Temporary used for output testing.
-        with open('index.csv', 'r', encoding="utf-8") as f:
+        with open('index2.csv', 'r', encoding="utf-8") as f:
             filecontent = csv.reader(f)
             for row in filecontent:
                 print(row[0])
@@ -75,3 +75,34 @@ class Index:
             return dbweb.find_one({"key":query})["value"]
         except:
             return "Keyword not found."
+
+class ReferenceIndex :
+
+    def __init__(self):
+        self.ref_index = dict()
+        self.ref_info = dict()
+
+    def add_info_entry(self, url, base_domain, links):
+        self.ref_info[url] = {"base_domain":base_domain, "links":links}
+
+    def convert_info_to_index(self):
+        for url in self.ref_info:
+            info = self.ref_info[url]
+            for link in info["links"]:
+                if link.startswith(info["base_domain"]):
+                    continue
+                self.count_reference(link)
+
+    #Add ref count
+    def count_reference(self, link):
+        if link not in self.ref_index:
+            self.ref_index[link] = 1
+        else:
+            self.ref_index[link] += 1
+
+    #Save current index to csv file
+    def save_to_file(self):
+        with open('ref_index.csv', 'w', encoding="utf-8") as f:
+            for key in self.ref_index.keys():
+                f.write(f'"{key}","{self.ref_index[key]}"\n')
+        f.close()
