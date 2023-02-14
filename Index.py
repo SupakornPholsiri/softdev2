@@ -109,11 +109,3 @@ class ReferenceIndex :
                 f.write(f'"{key}","{self.ref_index[key]}"\n')
         f.close()
     
-    #ยังไม่ได้เชื่อม
-    def lemmatization(self,tokens):
-        wordnet_lemmatizer = WordNetLemmatizer()
-        lemmatized = []
-        for w in tokens:
-            lemmatized.append(wordnet_lemmatizer.lemmatize(w))
-        return lemmatized
-    

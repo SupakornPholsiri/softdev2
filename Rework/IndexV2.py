@@ -6,6 +6,36 @@ SearchEngine = client['SearchEngine']
 dbweb = SearchEngine['WebDB']
 from collections import Counter
 
+class RawInfoIndex:
+    def __init__(self):
+        self.index = {}
+        self.url_to_be_updated = set()
+
+    #Add or add onto keyword index using the tokens.
+    def modify_index(self, url, raw_text, links, hash):
+        if url not in self.index:
+            self.index[url] = {"text":raw_text, "links":links, "hash":hash}
+            self.url_to_be_updated.add(url)
+        elif self.index[url]["hash"] != hash:
+            self.index[url] = {"text":raw_text, "links":links, "hash":hash}
+            self.url_to_be_updated.add(url)
+        else :
+            self.index[url] = {"text":raw_text, "links":links, "hash":hash}
+        return self.index
+
+    def save_to_file(self):
+        with open('Rework_.csv', 'w', encoding="utf-8") as f:
+            for key in self.index.keys():
+                f.write(f'"{key}","{self.index[key]["text"]}","{self.index[key]["links"]}","{self.index[key]["hash"]}"\n')
+        f.close()
+
+    def read_file(self):
+        #Temporary used for output testing.
+        with open('index2.csv', 'r', encoding="utf-8") as f:
+            filecontent = csv.reader(f)
+            self.index = {row[0]:{"text":eval(row[1]), "links":eval(row[2]), "hash":eval(row[3])} for row in filecontent}
+        f.close()
+
 class InvertedIndex:
     #Class for indexes. Methods related to index are stored here.
 
@@ -66,7 +96,7 @@ class InvertedIndex:
         f.close()
 
     def read_database(self):
-        index = []
+        self.index = {}
         for col in dbweb.find({},{"_id":0, "key":1, "value":1}):
             self.index[col["key"]] = col["value"]
 
@@ -81,13 +111,15 @@ class ForwardIndex :
     def __init__(self):
         self.index = {}
 
-    def build_index_from_file(self, filename):
+    """def build_index_from_file(self, filename):
+        self.index = {}
+
         for url in self.ref_info:
             info = self.ref_info[url]
             for link in info["links"]:
                 if link.startswith(info["base_domain"]):
                     continue
-                self.count_reference(link)
+                self.count_reference(link)"""
 
     #Add ref count
     def count_reference(self, link):
@@ -102,3 +134,4 @@ class ForwardIndex :
             for key in self.ref_index.keys():
                 f.write(f'"{key}","{self.ref_index[key]}"\n')
         f.close()
+    

@@ -8,7 +8,7 @@ import time
 def generate_and_crawl(spider:Spider, index:Index, ref:ReferenceIndex, thread_num:int, crawl_lock:threading.Lock, index_lock:threading.Lock):
     try:
         url = Spider.queue[Spider.queue_front]
-        spider.generate_soup(url)
+        assert spider.generate_soup(url)
     except: return
 
     crawl_lock.acquire()
@@ -48,4 +48,3 @@ if __name__ == "__main__":
     ref_index.save_to_file()
     stop = time.time()
     print(stop-start)
-    
