@@ -1,6 +1,5 @@
 import re
 import csv
-import nltk
 from nltk.stem import 	WordNetLemmatizer
 from pymongo import MongoClient
 client = MongoClient('localhost:27017')
@@ -17,6 +16,7 @@ class Index:
     #Add or add onto keyword index using the tokens.
     def modify_index_with_tokens(self, tokens, url):
         #Pattern for removing most punctuations and special characters tokens
+        
         pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
         lemmatized =  self.lemmatization(tokens)
         counter = Counter(lemmatized)
