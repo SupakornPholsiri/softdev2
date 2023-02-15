@@ -53,7 +53,6 @@ class Spider:
         """Add links gained from scraping to queue"""
         links = self.get_links()
         for link in links:
-            print(link)
             domain = self.get_base_domain(link)
             if domain in Spider.all_robots:
                 can_scrape = Spider.all_robots[self.get_base_domain(link)].can_fetch("*",link)
@@ -69,7 +68,7 @@ class Spider:
         if Spider.max_depth > Spider.depth:
             self.add_links_to_queue()
         Spider.crawled.append(self.url)
-        return (self.get_text(), self.get_links(), self.hash)
+        return (self.get_text(), list(self.get_links()), self.hash)
 
     def check_if_can_scrape(self, url:str):
         """Check if the spider should crawl the page"""
@@ -90,7 +89,7 @@ class Spider:
             html = requests.get(url)
             self.url = url
             self.soup = BeautifulSoup(html.text, "html.parser")
-            self.hash = hashlib.sha224(self.soup.text.encode()).hexdigest()
+            self.hash = hashlib.sha256(self.soup.text.encode()).hexdigest()
         return allowed
     
     def get_text(self) -> str:
