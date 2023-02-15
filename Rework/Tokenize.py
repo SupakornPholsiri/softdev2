@@ -8,7 +8,6 @@ class Tokenize:
          self.tokens = ""
     def tokenize(self,tokens):
         re1 = re.sub("[0-9]|[+\-*/]|[\t\n]"," ",tokens)
-        print(re1)
         # tokens = re.findall(r'\b\w+\b', re1)
         # print(tokens)
         afteremoji = ""
@@ -17,7 +16,6 @@ class Tokenize:
                 afteremoji += " "
             else:
                 afteremoji += i
-        print(afteremoji)
         tokenized = word_tokenize(afteremoji)
         finaltokenized = []
         for x in tokenized:

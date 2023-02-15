@@ -46,7 +46,8 @@ class RawInfoIndex:
         raw_data_collection = database["RawData"]
         self.index = {}
         for col in raw_data_collection.find({},{"_id":0, "key":1, "text":1, "links":1, "hash":1}):
-            self.index[col["key"]] = {"text":col["text"], "links":col["links"], "hash":col["hash"]}
+            links = [col["links"][i] for i in col["links"]]
+            self.index[col["key"]] = {"text":col["text"], "links":links, "hash":col["hash"]}
 
     
     """def save_to_file(self):
@@ -68,7 +69,7 @@ class InvertedIndex:
     def __init__(self):
         self.index = {}
 
-    #Add or add onto keyword index using the tokens.
+    """ #Add or add onto keyword index using the tokens.
     def modify_index_with_tokens(self, tokens, url):
         #Pattern for removing most punctuations and special characters tokens
         pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
@@ -86,17 +87,14 @@ class InvertedIndex:
             elif url in self.index[token] and self.index[token][url] != counter[token]:
                 self.index[token][url] = counter[token]
                 dbweb.find_one_and_update({"key":token},{'$set':{"value":self.index[token]}})
-        return self.index
+        return self.index"""
 
     #Add or add onto keyword index using the tokens.
-    def modify_index_with_tokens_no_mongo(self, tokens, url):
+    def modify_index_with_tokens(self, tokens, url):
         #Pattern for removing most punctuations and special characters tokens
-        pattern = re.compile(r'[\n/,.\[\]()_:;/?! ‘\xa0©=“”{}%_&<>’\|"]')
         counter = Counter(tokens)
         for token in tokens:
             #Remove None, punctuations and special characters tokens
-            if not token or pattern.match(token):
-                continue
             if token not in self.index :
                 self.index[token] = {url:counter[token]}
             elif url not in self.index[token]:
@@ -105,7 +103,7 @@ class InvertedIndex:
                 self.index[token][url] = counter[token]
         return self.index
 
-    #Save current index to csv file
+    """#Save current index to csv file
     def save_to_file(self):
         with open('index2.csv', 'w', encoding="utf-8") as f:
             for key in self.index.keys():
@@ -120,32 +118,27 @@ class InvertedIndex:
                 print(row[0])
             self.index = {row[0]:eval(row[1]) for row in filecontent}
         f.close()
+"""
+    def save_to_database(self, database):
+        inverted_collection = database["WebDB"]
+        for keyword in self.index:
+            if inverted_collection.find_one({"key":keyword}):
+                inverted_collection.find_one_and_update({"key":keyword},{"$set":{"value":self.index[keyword]}})
+            else:
+                inverted_collection.insert_one({"key":keyword},{"$set":{"value":self.index[keyword]}})
 
-    def read_database(self):
+    def read_from_database(self, database):
+        inverted_collection = database["WebDB"]
         self.index = {}
-        for col in dbweb.find({},{"_id":0, "key":1, "value":1}):
+        for col in inverted_collection.find({},{"_id":0, "key":1, "value":1}):
             self.index[col["key"]] = col["value"]
-
-    def search(self, query):
-        try:
-            return dbweb.find_one({"key":query})["value"]
-        except:
-            return "Keyword not found."
-
 class ForwardIndex :
 
     def __init__(self):
         self.index = {}
 
-    """def build_index_from_file(self, filename):
-        self.index = {}
-
-        for url in self.ref_info:
-            info = self.ref_info[url]
-            for link in info["links"]:
-                if link.startswith(info["base_domain"]):
-                    continue
-                self.count_reference(link)"""
+    def f():
+        pass
 
     #Add ref count
     def count_reference(self, link):
