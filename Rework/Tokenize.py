@@ -1,33 +1,37 @@
 from pythainlp import word_tokenize
 import emoji
 import re
-
-test = "Yesasdasdasd Baby-have Study Studying studied 😀 13216546541323 หัวเราะนะครับ"
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import sent_tokenize, word_tokenize
+import nltk
 class Tokenize:
-    def __init__(self) -> None:
-         self.tokens = ""
+    
     def tokenize(self,tokens):
         re1 = re.sub(r'[][!-@#$?%+:"\n^_]'," ",tokens)
-        # print(re1)
-        # tokens = re.findall(r'\b\w+\b', re1)
-        print(re1)
         afteremoji = ""
         for i in re1:
             if i in emoji.EMOJI_DATA:
-                afteremoji += ""
+                afteremoji += " "
             else:
                 afteremoji += i
-        # print(afteremoji)
         tokenized = word_tokenize(afteremoji)
         finaltokenized = []
+        lemmatizer = WordNetLemmatizer()
         for x in tokenized:
             if x.startswith(" ") :
                 continue
             else:
-                finaltokenized.append(x)
+                finaltokenized.append(lemmatizer.lemmatize(x))
         return finaltokenized
-ex = Tokenize()
-print(ex.tokenize(test))
+    def filter(self,inputlist):
+        result = []
+        for c in inputlist:
+            if len(c) == 1:
+                continue
+            else:
+                result.append(c)
+        return result
+    
 
 
     

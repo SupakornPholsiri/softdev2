@@ -7,7 +7,7 @@ class Tokenize:
     def __init__(self) -> None:
          self.tokens = ""
     def tokenize(self,tokens):
-        re1 = re.sub(r'[][!-@#$?%+:"\n^_]',"",tokens)
+        re1 = re.sub(r'[][!-@#$?%+:"\n^_]'," ",tokens)
         print(re1)
         # tokens = re.findall(r'\b\w+\b', re1)
         # print(tokens)
