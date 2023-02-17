@@ -33,15 +33,13 @@ class Test(unittest.TestCase):
     def test_Tokenize_6thcase(self):
         #เคสตัวอักษรพิเศษ
         Tokenizer = Tokenize()
-        test1 = "I▶you"
+        test1 = "I▶you!-@#$?%+:;^_<>=*{}()&/|\t\n\\"
         self.assertEqual(Tokenizer.tokenize(test1),["I","you"])
     def test_Tokenize_7thcase(self):
         #เคส Punctuation
         Tokenizer = Tokenize()
         test1 = "Banana-cupcake"
         self.assertEqual(Tokenizer.tokenize(test1),["Banana","cupcake"])
-        
-        
     def test_Tokenizefilter_1stcase(self):
         #เคสภาษาอังกฤษ
         Tokenizer = Tokenize()
@@ -57,8 +55,6 @@ class Test(unittest.TestCase):
         Tokenizer = Tokenize()
         test1 = ["กู","บ","เป็น","หยัง","I","a","Okay","นะ","ยู","โนว"]
         self.assertEqual(Tokenizer.filter(test1),["กู","เป็น","หยัง","Okay","นะ","ยู","โนว"])
-        
-        
         
 if __name__ == '__main__':
     unittest.main()

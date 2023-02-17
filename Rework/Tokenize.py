@@ -8,7 +8,7 @@ class Tokenize:
     def tokenize(self,tokens):
         """จะรับ Tokens มาเเบบเป็นข้อความยาวเป็น String เเล้วนำมาใช้ re.sub เป็นการใช้ Regular Expression
             โดย sub นี้จะเอาพวกตัวเลข สัญลักษณ์พิเศษออก เเล้วเเทนที่ด้วย String ว่าง"""
-        re1 = re.sub(r'[][!-@#$?%+:"\n^_]'," ",tokens)
+        re1 = re.sub(r'[][!-@#|{}\\$?%+:"\n^_\t]'," ",tokens)
         afteremoji = ""
         """จะเป็นการกรองเอา emoji ออก โดยนำ Library emoji มาใช้ โดยจะให้ลูปเทียบกับลิสต์ emoji ที่ import เข้ามา เเล้วเทนที่ด้วย String ว่าง"""
         for i in re1:
