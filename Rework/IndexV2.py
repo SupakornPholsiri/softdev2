@@ -48,7 +48,8 @@ class RawInfoIndex:
                 else:
                     raw_data_collection.insert_one({"key":url,
                                                     "text":self.index[url]["text"],
-                                                    "links":{str(i):self.index[url]["links"][i] for i in range(len(self.index[url]["links"]))},
+                                                    "links":{str(i):self.index[url]["links"][i] 
+                                                    for i in range(len(self.index[url]["links"]))},
                                                     "hash":self.index[url]["hash"]})
                 self.url_to_be_updated.remove(url)
 

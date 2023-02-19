@@ -1,0 +1,23 @@
+class TestInvertedIndex(unittest.TestCase):
+    
+    def setUp(self):
+        self.ivi = InvertedIndex()
+    
+    def test_modify_case1(self):
+        tokens = ["banana","รถยนต์","banana"]
+        url = "www.testcase01.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"banana":{"www.testcase01.com":2},"รถยนต์":{"www.testcase01.com":1}})
+    def test_modify_case2(self):
+        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
+        tokens = ["key1","key2","key1","key2"]
+        url = "www.testcase01.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}})
+    def test_modify_case3(self):
+        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
+        tokens = ["key1","key2","key3"]
+        url = "www.testcase02.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"key1":{"www.testcase01.com":2,"www.testcase02.com":1},
+                                 "key2":{"www.testcase01.com":1,"www.testcase02.com":1},"key3":{"www.testcase02.com":1}})
