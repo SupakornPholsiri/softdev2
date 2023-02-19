@@ -120,10 +120,14 @@ class RawInfoTest(unittest.TestCase):
         "https://example.org":{"text": "example text 2", "links": ["https://test.org","https://dummy.org"], "hash": "67890"}})
 
     def test_remove_url(self):
-        self.rawInfo.index = {"A":{},"B":{}}
-        self.rawInfo.remove_urls(["A"])
-        assert(self.rawInfo.index == {"B":{}})
-        assert(self.rawInfo.url_to_be_deleted == ["A"])
+        self.rawInfo.index = {"https://example.org":{"text": "example text 2", "links": ["https://test.org","https://dummy.org"], 
+                               "hash": "07691af247258f52b390f5225a2c421e280e7c7f5393182bea466f0c1b2f91db"},
+                               "https://fortesting.com":{"text":"example text 3","links":["https://test.org","https://dummy.org"], 
+                                "hash": "f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"}}
+        self.rawInfo.remove_urls(["https://example.org"])
+        assert(self.rawInfo.index == {"https://fortesting.com":{"text":"example text 3","links":["https://test.org","https://dummy.org"], 
+                                        "hash": "f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"}})
+        assert(self.rawInfo.url_to_be_deleted == ["https://example.org"])
     
 class TestInvertedIndex(unittest.TestCase):
     
@@ -139,6 +143,7 @@ class TestInvertedIndex(unittest.TestCase):
         url = "www.testcase01.com"
         result = self.ivi.modify_index_with_tokens(tokens,[],url)
         self.assertEqual(result,{"banana":{"www.testcase01.com":2},"รถยนต์":{"www.testcase01.com":1}})
+        self.assertEqual(self.ivi.keywords_to_be_updated, {"banana","รถยนต์"})
         
     def test_modify_case2(self):
         self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
@@ -146,6 +151,7 @@ class TestInvertedIndex(unittest.TestCase):
         url = "www.testcase01.com"
         result = self.ivi.modify_index_with_tokens(tokens,[],url)
         self.assertEqual(result,{"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}})
+        self.assertEqual(self.ivi.keywords_to_be_updated, {"key2"})
         
     def test_modify_case3(self):
         self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
@@ -154,12 +160,12 @@ class TestInvertedIndex(unittest.TestCase):
         result = self.ivi.modify_index_with_tokens(tokens,[],url)
         self.assertEqual(result,{"key1":{"www.testcase01.com":2,"www.testcase02.com":1},
                                  "key2":{"www.testcase01.com":1,"www.testcase02.com":1},"key3":{"www.testcase02.com":1}})
+        self.assertEqual(self.ivi.keywords_to_be_updated, {"key1","key2","key3"})
     
     def test_savetodatabase_case1(self):
+        self.ivi.keywords_to_be_updated = {"key1","key2"}
         self.ivi.index = {"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}}
         self.ivi.save_to_database(self.testDB)
-        FindDB = list(self.testDB["WebDB"].find())
-        print(list(FindDB))
         result = []
         for col in self.testDB["WebDB"].find({},{"_id":0,"key":1,"value":1}):
             col_dict = dict()
@@ -167,7 +173,6 @@ class TestInvertedIndex(unittest.TestCase):
             col_dict["value"] = col["value"]
             result.append(col_dict)
         self.assertEqual(result,[{"key":"key1","value":{"www.testcase01.com":2}},{"key":"key2","value":{"www.testcase01.com":2}}])
-        
         
 if __name__ == "__main__":
     unittest.main()

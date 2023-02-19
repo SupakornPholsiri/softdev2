@@ -48,8 +48,7 @@ class RawInfoIndex:
                 else:
                     raw_data_collection.insert_one({"key":url,
                                                     "text":self.index[url]["text"],
-                                                    "links":{str(i):self.index[url]["links"][i] 
-                                                    for i in range(len(self.index[url]["links"]))},
+                                                    "links":{str(i):self.index[url]["links"][i] for i in range(len(self.index[url]["links"]))},
                                                     "hash":self.index[url]["hash"]})
                 self.url_to_be_updated.remove(url)
 
@@ -110,22 +109,6 @@ class InvertedIndex:
         for keyword in removed:
             del self.index[keyword][url]
 
-    """#Save current index to csv file
-    def save_to_file(self):
-        with open('index2.csv', 'w', encoding="utf-8") as f:
-            for key in self.index.keys():
-                f.write(f'"{key}","{self.index[key]}"\n')
-        f.close()
-
-    def read_file(self):
-        #Temporary used for output testing.
-        with open('index2.csv', 'r', encoding="utf-8") as f:
-            filecontent = csv.reader(f)
-            for row in filecontent:
-                print(row[0])
-            self.index = {row[0]:eval(row[1]) for row in filecontent}
-        f.close()
-"""
     def save_to_database(self, database):
         inverted_collection = database["WebDB"]
         for keyword in self.index:
