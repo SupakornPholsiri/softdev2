@@ -9,6 +9,7 @@ class Spider:
     crawled = []
     base_domains = []
     all_robots = {}
+    unaccessible_urls = []
 
     queue_front = 0
     queue_back = 1
@@ -72,25 +73,37 @@ class Spider:
 
     def check_if_can_scrape(self, url:str):
         """Check if the spider should crawl the page"""
+        if self.get_base_domain(url) not in Spider.base_domains:
+            return False
         can_scrape = Spider.all_robots[self.get_base_domain(url)].can_fetch("*",url)
         if url not in Spider.queue or not can_scrape : 
             return False
         return True
     
-    def generate_soup(self, url:str) -> bool:
+    def generate_next_soup(self) -> bool:
         """Create the BeautifulSoup object and create the hash for the website\n
         If the process is successful return True, otherwise return False"""
-        allowed = self.check_if_can_scrape(url)
-        if allowed :
-            Spider.queue_front += 1
-            depth_change = Spider.try_change_depth()
-            if depth_change :
+        url = Spider.queue[Spider.queue_front]
+        Spider.queue_front += 1
+        if self.check_if_can_scrape(url) :
+            if Spider.try_change_depth() :
                 Spider.queue_back = len(Spider.queue)
             html = requests.get(url)
+            if html.status_code == 404:
+                Spider.unaccessible_urls.append(url)
+                return False
+            elif html.is_permanent_redirect :
+                url = html.url
+                if not self.check_if_can_scrape(url):
+                    Spider.unaccessible_urls.append(url)
+                    return self.check_if_can_scrape(url)
+                Spider.queue[Spider.queue_front-1] = url
             self.url = url
             self.soup = BeautifulSoup(html.text, "html.parser")
             self.hash = hashlib.sha256(self.soup.text.encode()).hexdigest()
-        return allowed
+        else:
+            Spider.unaccessible_urls.append(url)
+        return self.check_if_can_scrape(url)
     
     def get_text(self) -> str:
         """Get text from website"""
