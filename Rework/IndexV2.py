@@ -6,7 +6,7 @@ from collections import Counter
 class Database:
     def __init__(self):
         self.client = MongoClient('localhost:27017')
-        self.SearchEngine = self.client['TestSearchEngine']
+        self.SearchEngine = self.client['SearchEngine']
         self.raw_data_storage = self.SearchEngine["RawData"]
         self.dbweb = self.SearchEngine['WebDB']
 
