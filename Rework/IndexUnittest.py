@@ -77,7 +77,7 @@ class RawInfoTest(unittest.TestCase):
         self.assertEqual(self.rawInfo.url_to_be_updated, set())
     
     def test_save_to_database(self):
-        self.rawInfo.url_to_be_updated = {"https://example.com", "https://example.org"}
+        self.rawInfo.url_to_be_updated = {"https://example.com", "https://example.org","https://fortesting.com"}
         self.rawInfo.url_to_be_deleted = ["https://error.com", "https://useless.net"]
         self.testDB["RawData"].insert_one({"key":"https://error.com", "text":"dummy text", "links":{}, 
                                            "hash":"e22d73ad754cfaecee5599a91a1308fda20e32eeb5d1e243dc6404473571b4c8"})
@@ -94,13 +94,21 @@ class RawInfoTest(unittest.TestCase):
         "https://fortesting.com":{"text":"example text 3","links":["https://test.org","https://dummy.org"], 
                                   "hash": "f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"}}
         self.rawInfo.save_to_database(self.testDB)
-        FindRawData = list(self.testDB["RawData"].find({"_id":0,"key":1,"text":1,"links":1,"hash":1}))
-        self.assertEqual(FindRawData,[{"key":"https://fortesting.com","text":"example text 3","links":{"0":"https://test.org","1":"https://dummy.org"},
-                                       "hash":"f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"},
-                                        {"key":"https://example.com","text":"example text 1","links":{"0":"https://test.com"},
-                                        "hash":"dbce35597750c711590d9db1f4b8c448ecc91c8cdfdbc0ddea8a2e8a8c842010"},
-                                        {"key":"https://example.org","text":"example text 2","links":{"0":"https://test.org","1":"https://dummy.org"},
-                                         "hash":"07691af247258f52b390f5225a2c421e280e7c7f5393182bea466f0c1b2f91db"}])
+        result = []
+        for col in self.testDB["RawData"].find({},{"_id":0,"key":1,"text":1,"links":1,"hash":1}):
+            col_dict = dict()
+            col_dict["key"] = col["key"]
+            col_dict["text"] = col["text"]
+            col_dict["links"] = col["links"]
+            col_dict["hash"] = col["hash"]
+            result.append(col_dict)
+        self.assertEqual(result,[{"key":"https://example.com","text":"example text","links":{"0":"https://test.com"},
+                                    "hash":"dbce35597750c711590d9db1f4b8c448ecc91c8cdfdbc0ddea8a2e8a8c842010"},
+                                    {"key":"https://example.org","text":"example text 2","links":{"0":"https://test.org","1":"https://dummy.org"},
+                                    "hash":"07691af247258f52b390f5225a2c421e280e7c7f5393182bea466f0c1b2f91db"},
+                                    {"key":"https://fortesting.com","text":"example text 3","links":{"0":"https://test.org","1":"https://dummy.org"},
+                                    "hash":"f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"}
+                                    ])
     
     def test_read_from_database(self):
         self.db["RawData"].find.return_value = [
@@ -151,13 +159,13 @@ class TestInvertedIndex(unittest.TestCase):
         self.ivi.index = {"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}}
         self.ivi.save_to_database(self.testDB)
         FindDB = list(self.testDB["WebDB"].find())
+        print(list(FindDB))
         result = []
         for col in self.testDB["WebDB"].find({},{"_id":0,"key":1,"value":1}):
             col_dict = dict()
             col_dict["key"] = col["key"]
             col_dict["value"] = col["value"]
             result.append(col_dict)
-        print(result)
         self.assertEqual(result,[{"key":"key1","value":{"www.testcase01.com":2}},{"key":"key2","value":{"www.testcase01.com":2}}])
         
         
