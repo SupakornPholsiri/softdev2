@@ -4,7 +4,6 @@ from Tokenize import Tokenize
 
 #Test Tokenize
 class Test(unittest.TestCase):
-    
     def test_Tokenize_1stcase(self):
         #เคสตัวอักษรอังกฤษ 1
         Tokenizer = Tokenize()

@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from mongomock import MongoClient
 from IndexV2 import RawInfoIndex
 from pymongo import MongoClient
-
+from IndexV2 import InvertedIndex
 class RawInfoTest(unittest.TestCase):
 
     def setUp(self):
@@ -70,9 +70,9 @@ class RawInfoTest(unittest.TestCase):
         "links":[], 
         "hash":"131410cd33081dcb5ffc7d22e75ce424f1cd7f4db053d3a401ae0a864ca5b66d"}})
 
-    @patch.object(MongoClient,"my_collection")
-    def test_save_to_database(self, mock_collection):
-        pass
+    # @patch.object(MongoClient,"my_collection")
+    # def test_save_to_database(self, mock_collection):
+    #     pass
     
     def test_read_from_database(self):
         self.db["RawData"].find.return_value = [
@@ -88,6 +88,34 @@ class RawInfoTest(unittest.TestCase):
         self.rawInfo.remove_urls(["A"])
         assert(self.rawInfo.index == {"B":{}})
         assert(self.rawInfo.url_to_be_deleted == ["A"])
+    
+class TestInvertedIndex(unittest.TestCase):
+    
+    def setUp(self):
+        self.ivi = InvertedIndex()
+    
+    def test_modify_case1(self):
+        tokens = ["banana","รถยนต์","banana"]
+        url = "www.testcase01.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"banana":{"www.testcase01.com":2},"รถยนต์":{"www.testcase01.com":1}})
+    def test_modify_case2(self):
+        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
+        tokens = ["key1","key2","key1","key2"]
+        url = "www.testcase01.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}})
+    def test_modify_case3(self):
+        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
+        tokens = ["key1","key2","key3"]
+        url = "www.testcase02.com"
+        result = self.ivi.modify_index_with_tokens(tokens,[],url)
+        self.assertEqual(result,{"key1":{"www.testcase01.com":2,"www.testcase02.com":1},
+                                 "key2":{"www.testcase01.com":1,"www.testcase02.com":1},"key3":{"www.testcase02.com":1}})
+    
+        
+        
+         
 
 if __name__ == "__main__":
     unittest.main()
