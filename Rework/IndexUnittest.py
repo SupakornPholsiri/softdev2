@@ -132,6 +132,7 @@ class RawInfoTest(unittest.TestCase):
 class TestInvertedIndex(unittest.TestCase):
     
     def setUp(self):
+        self.db = MagicMock()
         self.ivi = InvertedIndex()
         self.testDB = MongoClient('localhost:27017')["TestSearchEngine"]
         
@@ -173,6 +174,13 @@ class TestInvertedIndex(unittest.TestCase):
             col_dict["value"] = col["value"]
             result.append(col_dict)
         self.assertEqual(result,[{"key":"key1","value":{"www.testcase01.com":2}},{"key":"key2","value":{"www.testcase01.com":2}}])
+        
+    def test_read_from_database(self):
+        self.db["RawData"].find.return_value = [
+            {"key":"word1","value":{"www.test01.com":1}},{"key":"word2","value":{"www.test02.com":2}}]
+        self.ivi.read_from_database(self.db)
+        self.assertEqual(self.ivi.index, {"word1":{"www.test01.com":1},"word2":{"www.test02.com":2}})
+    
         
 if __name__ == "__main__":
     unittest.main()

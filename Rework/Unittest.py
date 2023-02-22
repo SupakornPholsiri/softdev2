@@ -22,13 +22,13 @@ class Test(unittest.TestCase):
     def test_Tokenize_4thcase(self):
         #Thai-ENG
         Tokenizer = Tokenize()
-        test1 = "Oh Baby Baby อู้ โว้ว"
-        self.assertEqual(Tokenizer.tokenize(test1),["Oh","Baby","Baby","อู้","โว้ว"])
+        test1 = "Test ไทย"
+        self.assertEqual(Tokenizer.tokenize(test1),["Test","ไทย"])
     def test_Tokenize_5thcase(self):
         #Emoji Thai ENG
         Tokenizer = Tokenize()
-        test1 = "Oh Baby Baby อู้ โว้ว โจ้ว โจ้ว เอิ้บ 🙌 🙌 🙌 🙌"
-        self.assertEqual(Tokenizer.tokenize(test1),["Oh","Baby","Baby","อู้","โว้ว","โจ้ว","โจ้ว","เอิ้บ"])
+        test1 = "Hands ยกมือ 🙌 🙌 🙌 🙌"
+        self.assertEqual(Tokenizer.tokenize(test1),["Hands","ยกมือ"])
     def test_Tokenize_6thcase(self):
         #Special Character
         Tokenizer = Tokenize()
@@ -47,13 +47,13 @@ class Test(unittest.TestCase):
     def test_Tokenizefilter_2stcase(self):
         #Thai
         Tokenizer = Tokenize()
-        test1 = ["กู","บ","เป็น","หยัง"]
-        self.assertEqual(Tokenizer.filter(test1),["กู","เป็น","หยัง"])
+        test1 = ["ข้า","บ","เป็น","หยัง"]
+        self.assertEqual(Tokenizer.filter(test1),["ข้า","เป็น","หยัง"])
     def test_Tokenizefilter_3stcase(self):
         #Thai-ENG
         Tokenizer = Tokenize()
-        test1 = ["กู","บ","เป็น","หยัง","I","a","Okay","นะ","ยู","โนว"]
-        self.assertEqual(Tokenizer.filter(test1),["กู","เป็น","หยัง","Okay","นะ","ยู","โนว"])
+        test1 = ["ท","ท","ไทย","T","Test"]
+        self.assertEqual(Tokenizer.filter(test1),["ไทย","Test"])
         
 if __name__ == '__main__':
     unittest.main()
