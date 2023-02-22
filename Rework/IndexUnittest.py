@@ -109,6 +109,7 @@ class RawInfoTest(unittest.TestCase):
                                     {"key":"https://fortesting.com","text":"example text 3","links":{"0":"https://test.org","1":"https://dummy.org"},
                                     "hash":"f0c97bb60ae0305a7393534e27c54f5f23e0894fd35a380a459f87015a2806f3"}
                                     ])
+        self.assertEqual(self.rawInfo.in_queue_deleted, 2)
     
     def test_read_from_database(self):
         self.db["RawData"].find.return_value = [
