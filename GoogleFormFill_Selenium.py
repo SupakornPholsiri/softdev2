@@ -106,3 +106,4 @@ def fill_form(ans1, ans2, ans3, ans4, ans5, ans6, ans7, ans8, ans9):
     driver.find_element(By.XPATH,'//*[@id="mG61Hd"]/div[2]/div/div[3]/div[1]/div[1]/div[2]/span').click()
 
 fill_form("Nung", "ไม่ตอบ", ["นกพิราบเป็นกล้องวงจรปิดของรัฐบาล", "Python เป็นภาษาพูด"], "0", "ไม่มี", "Give you up", "Another test", "12302015", 10)
+
