@@ -10,14 +10,13 @@ options.add_experimental_option("detach", True)
 PATH = 'C:\Program Files (x86)\chromedriver.exe'
 s=service = Service(executable_path=PATH)
 
-Home = "https://erp.mju.ac.th/acticleDetail.aspx?qid=868"
 
 driver = webdriver.Chrome(options=options,service=s)
 driver.maximize_window()
 
-driver.get('https://erp.mju.ac.th/acticleDetail.aspx?qid=868')
+driver.get('https://history.state.gov/countries/all')
 
-elements = driver.find_elements(By.XPATH,"//*[@title]")
+elements = driver.find_elements(By.XPATH,"//a")
 Count = 0
 ListCountry = []
 for element in elements:
@@ -31,5 +30,5 @@ print(lastlist,Count)
 
 import pickle
 
-with open('listofallcountries.txt', 'wb') as fp:
+with open('listofallcountrieseng.txt', 'wb') as fp:
     pickle.dump(lastlist, fp)
