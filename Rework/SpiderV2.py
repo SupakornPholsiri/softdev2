@@ -22,11 +22,14 @@ class Spider:
         """Set the domains that the spider will crawl to and read theirs robots.txt file"""
         cls.base_domains = [cls.get_base_domain(domain) for domain in domains]
         for domain in cls.base_domains:
-            rp = urllib.robotparser.RobotFileParser()
             robots_url = f"https://{domain}/robots.txt"
-            rp.set_url(robots_url)
-            rp.read()
-            Spider.all_robots[domain] = rp
+            if requests.get(robots_url).status_code != 404:
+                rp = urllib.robotparser.RobotFileParser()
+                rp.set_url(robots_url)
+                rp.read()
+                Spider.all_robots[domain] = rp
+            else:
+                Spider.all_robots[domain] = None
         
     @classmethod
     def try_change_depth(cls):
@@ -56,7 +59,10 @@ class Spider:
         for link in links:
             domain = self.get_base_domain(link)
             if domain in Spider.all_robots:
-                can_scrape = Spider.all_robots[self.get_base_domain(link)].can_fetch("*",link)
+                if Spider.all_robots[domain] != None:
+                    can_scrape = Spider.all_robots[self.get_base_domain(link)].can_fetch("*",link)
+                else:
+                    can_scrape = True
                 if link in Spider.crawled or link in Spider.queue or link == self.url or not can_scrape:
                     continue
             Spider.queue.append(link)
@@ -75,7 +81,10 @@ class Spider:
         """Check if the spider should crawl the page"""
         if self.get_base_domain(url) not in Spider.base_domains:
             return False
-        can_scrape = Spider.all_robots[self.get_base_domain(url)].can_fetch("*",url)
+        if Spider.all_robots[self.get_base_domain(url)] != None:
+            can_scrape = Spider.all_robots[self.get_base_domain(url)].can_fetch("*",url)
+        else:
+            can_scrape = True
         if url not in Spider.queue or not can_scrape : 
             return False
         return True

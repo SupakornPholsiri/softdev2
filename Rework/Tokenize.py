@@ -2,10 +2,11 @@ from pythainlp import word_tokenize
 import emoji
 import re
 from nltk.stem import WordNetLemmatizer
+from collections import Counter
 import nltk
 class Tokenize:
     def tokenize(self,tokens):
-        """Receive String user Regular Expression filter special character and unnecessary character"""
+        """Receive String use Regular Expression to filter special character and unnecessary character"""
         re1 = re.sub(r'[][!-@#|{}\\$?%+:"\n^_\t]'," ",tokens)
         afteremoji = ""
         """Filter Emoji"""
@@ -22,8 +23,9 @@ class Tokenize:
             if x.startswith(" ") :
                 continue
             else:
-                finaltokenized.append(lemmatizer.lemmatize(x))
+                finaltokenized.append(lemmatizer.lemmatize(x).lower())
         return finaltokenized
+    
     def filter(self,inputlist):
         """Filter 1 character"""
         result = []
@@ -34,6 +36,9 @@ class Tokenize:
                 result.append(c)
         return result
     
+    def make_counter(self, tokens_list:list[str]):
+        """Create a counter object for the tokens"""
+        return Counter(tokens_list)
 
 
     
