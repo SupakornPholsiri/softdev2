@@ -9,18 +9,18 @@ class Tokenize:
         self.stopword = self.ListOfStopword()
     
     def ListOfStopword(self):
-        with open("stop_words_english.txt","r")as f:
-            listsw = f.read(listsw)
+        with open("stop_words_english.txt","r",encoding="utf-8")as f:
+            listsw = f.read()
             listsw = listsw.split("\n")
             return listsw
         
-    def FilterStopWord(self,token):
+    def FilterStopWord(self,tokens):
         listtoken = []
-        for i in token:
-            if i in self.stopword:
+        for token in tokens:
+            if token in self.stopword:
                 continue
             else:
-                listtoken.append(token[i])
+                listtoken.append(token)
         return listtoken
     
     def tokenize(self,tokens):
@@ -58,9 +58,3 @@ class Tokenize:
     def make_counter(self, tokens_list:list[str]):
         """Create a counter object for the tokens"""
         return Counter(tokens_list)
-
-
-    
-
-        
-        

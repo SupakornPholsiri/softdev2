@@ -426,3 +426,8 @@ class Index:
         self.fw_index = {}
         for col in database.fw_index.find({},{"_id":0, "key":1, "value":1}):
             self.fw_index[col["key"]] = col["value"]
+
+    def search_urls_from_keyword(self, keyword:str):
+        keyword = keyword.lower()
+        if keyword in self.ivi_index:
+            return [url for url in self.ivi_index[keyword]]
