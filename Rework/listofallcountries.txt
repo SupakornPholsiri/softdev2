@@ -31,7 +31,7 @@
                  'เวียดนาม', 'คิงแมนรีฟ', 'มอนต์เซอร์รัต', 'โรดทาวน์', 'มอนเตเนโกร', 'หมู่เกาะบริติชเวอร์จิน', 'พริชตีนา', 'อะโซร์ส', 'แซ็งมาร์แต็ง', 'กวม', 'นากอร์โน-คาราบัค', 'บริติชแอนตาร์กติกเทร์ริทอรี', 'อัฟกานิสถาน', 
                  'เอสโตเนีย', 'พลิมัท', 'หมู่เกาะเติกส์และหมู่เกาะเคคอส', 'มาซิโดเนีย', 'ซีเรีย', 'ซูดาน', 'เบอร์มิวดา', 'อับฮาเซีย', 'สาธารณรัฐคอซอวอ', 'เยอรมนี', 'เนเธอร์แลนด์', 'บัส-แตร์', 'โปแลนด์',
                   'แอโครเทียรีและดิเคเลีย', 'ควีนมอดแลนด์', 'นามิเบีย', 'เกิร์นซีย์', 'ยูกันดา', 'ญี่ปุ่น', 'แซง-ปีแยยร์', 'รวันดา', 'Bahamas,'Laos', 'Malaysia', 'Micronesia', 'Gabon', 
-                  'Eritrea', 'Egypt', 'Mecklenburg-Schwerin*', 'Benin (Dahomey)', 'Estonia', 'Belize', 'El Salvador', 'Cameroon', 'Montenegro', 'North German Union*', 
+                  'Eritrea', 'Egypt', 'Mecklenburg-Schwerin*', 'Benin','Dahomey', 'Estonia', 'Belize', 'El Salvador', 'Cameroon', 'Montenegro', 'North German Union*', 
                   'Samoa', 'Russia', 'Suriname', 'Argentina', 'Monaco', 'Oldenburg', 'Iraq', 'Senegal', 'Venezuela', 'Niger', 'Timor-Leste', 'Haiti', 'Chile', 
                    'Ecuador', 'Philippines', 'Portugal', 'Afghanistan', 'Cuba', 'India', 'Saudi Arabia', 'Qatar', 'Latvia', 'Nigeria', 'Ethiopia',
                     'Democratic Republic of the Congo', 'Burkina Faso ','Upper Volta', 'Korea', 'Somalia', 'Kosovo', 'Antigua and Barbuda', 

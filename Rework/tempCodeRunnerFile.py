@@ -1,1 +1,1 @@
-Detail.aspx?qid=868')
+'black'
