@@ -26,7 +26,7 @@ class Tokenize:
                 finaltokenized.append(lemmatizer.lemmatize(x).lower())
         return finaltokenized
     
-    def filter(self,inputlist):
+    def filter(self, inputlist):
         """Filter 1 character"""
         result = []
         for c in inputlist:
