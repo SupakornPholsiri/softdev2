@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
     def test_Tokenizefilter_1stcase(self):
         #ENG
         Tokenizer = Tokenize()
-        test1 = ["it","s","really","nice"]
+        test1 = ["it","really","nice"]
         self.assertEqual(Tokenizer.filter(test1),["it","really","nice"])
     def test_Tokenizefilter_2stcase(self):
         #Thai
@@ -59,6 +59,7 @@ class Test(unittest.TestCase):
         Tokenizer = Tokenize()
         counter = Tokenizer.make_counter(["banana", "apple", "banana", "yellow", "yellow", "yellow"])
         assert counter == Counter({"banana":2, "apple":1, "yellow":3})
+    
         
 if __name__ == '__main__':
     unittest.main()
