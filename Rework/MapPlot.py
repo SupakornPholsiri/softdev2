@@ -70,7 +70,7 @@ class MapPlot:
                 coords = self.get_coordinate(listcountryname[i])
                 folium.Marker([coords[0], coords[1]],icon=folium.features.DivIcon(icon_size=(150,36),icon_anchor=(0,0),html=f'<div style="font-size: 24pt; color: red; font-weight: bold">{count}</div>')).add_to(self.map)
                 for feature in countries_geojson["features"]:
-                    if feature["properties"]["name"] == listcountryname[i]:
+                    if feature["properties"]["name"].lower() == listcountryname[i]:
                         print("found",i)
                         folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x, i=i: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},tooltip=listcountryname[i]).add_to(self.map)
             except:
@@ -85,7 +85,7 @@ class MapPlot:
         return CountCountry
     
 map_plot = MapPlot()
-map_plot.getMapPlot({"France":1, "Spain":5, "Germany":1, "Italy":7, "United States of America":9, "China":6})
+map_plot.getMapPlot({"france":1, "spain":5, "germany":1, "italy":7, "united states of america":9, "china":6})
 
 
 
