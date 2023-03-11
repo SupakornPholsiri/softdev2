@@ -67,11 +67,10 @@ class Spider:
                     continue
             Spider.queue.append(link)
 
-    def crawl(self, hash_index:dict):
+    def crawl(self, hash_in_storage):
         """Scrape the links and text from website"""
-        if self.url in hash_index:
-            if hash_index[self.url] == self.hash :
-                return None
+        if hash_in_storage == self.hash :
+            return None
         if Spider.max_depth > Spider.depth:
             self.add_links_to_queue()
         Spider.crawled.append(self.url)

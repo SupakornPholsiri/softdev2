@@ -55,11 +55,12 @@ class MapPlot:
             colors.append(hex_color)
         return colors
 
-    def getMapPlot(self, listcountryname):
+    def getMapPlot(self, Dictcountryname:dict):
         url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
         country_shapes = f"{url}/world-countries.json"
         countries_geojson = requests.get(country_shapes).json()
-        CountCountryDict = self.CountnumberofCountry(listcountryname)
+        CountCountryDict = self.CountnumberofCountry(Dictcountryname)
+        listcountryname = list(Dictcountryname.keys())
         listcolor = self.generate_random_colors(len(CountCountryDict))
         print(len(CountCountryDict))
         print(listcolor)
@@ -69,25 +70,22 @@ class MapPlot:
                 coords = self.get_coordinate(listcountryname[i])
                 folium.Marker([coords[0], coords[1]],icon=folium.features.DivIcon(icon_size=(150,36),icon_anchor=(0,0),html=f'<div style="font-size: 24pt; color: red; font-weight: bold">{count}</div>')).add_to(self.map)
                 for feature in countries_geojson["features"]:
-                    print(listcolor[i])
                     if feature["properties"]["name"] == listcountryname[i]:
-                        folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},tooltip=listcountryname[i]).add_to(self.map)
+                        print("found",i)
+                        folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x, i=i: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},tooltip=listcountryname[i]).add_to(self.map)
             except:
                 print(f"No coordinates found for {listcountryname[i]}")
         self.map.save("Map.html")
         webbrowser.open("Map.html")
     
-    def CountnumberofCountry(self,listcountry):
+    def CountnumberofCountry(self,Dictcountry):
         CountCountry = {}
-        for i in listcountry:
-            if i in CountCountry:
-                CountCountry[i] = int(CountCountry[i].value) + 1
-            else:
-                CountCountry[i] = 1
+        for country in Dictcountry:
+           CountCountry[country] = Dictcountry[country]
         return CountCountry
     
 map_plot = MapPlot()
-map_plot.getMapPlot(["France", "Spain", "Germany", "Italy", "United States of America"])
+map_plot.getMapPlot({"France":1, "Spain":5, "Germany":1, "Italy":7, "United States of America":9, "China":6})
 
 
 
