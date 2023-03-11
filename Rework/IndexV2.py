@@ -216,14 +216,6 @@ class ForwardIndex :
             return self.index
         return self.index
 
-    def clean(self, raw_index_urls):
-        for key in self.index:
-            if key not in raw_index_urls:
-                del self.index[key]
-                self.urls_to_be_removed.append(key)
-            elif "RefCount" not in self.index[key]:
-                self.index[key]["RefCount"] = 0
-
     def save_to_database(self, database:Database):
         for url in self.index:
             if url in self.urls_to_be_updated:
@@ -256,66 +248,22 @@ class Index:
         self.urls_to_be_removed = []
         self.urls_removed_from_database = 0
 
-        self.locations = [  'นูเมอา', 'มาเดรา', 'แซ็งบาร์เตเลอมี', 'ปาโกปาโก', 'หมู่เกาะคอรัลซี',
-                            'เอลซัลวาดอร์', 'มาร์ตีนิก', 'แอนติกาและบาร์บูดา', 'อิสราเอล', 'บาร์เบโดส', 
-                            'สฟาลบาร์', 'เบนิน', 'มามูซู', 'ออสเตรีย', 'กาแยน', 'บอตสวานา', 'ไอวอรีโคสต์',
-                            'เกาะจาร์วิส', 'อันดอร์รา', 'นีอูเอ', 'ไนจีเรีย', 'หมู่เกาะโคโคส', 'ลิทัวเนีย', 'สาธารณรัฐแอฟริกากลาง',
-                            'เรอูว์นียง', 'เมลียา', 'เปรู', 'ลัตเวีย', 'สหรัฐอเมริกา', 'ไซปรัสเหนือ', 'ปานามา', 'เซนต์เฮลเยอร์', 
-                            'ตุรกี','ทูร์เคีย', 'สาธารณรัฐประชาธิปไตยอาหรับซาห์ราวี', 'ลาว', 'เคนยา', 'แอลเบเนีย', 'แคนาดา', 'ไอซ์แลนด์', 'มอริเชียส',
-                            'มาลี', 'สาธารณรัฐเช็ก', 'บรูไนดารุสซาลาม', 'ฟิลิปปินส์', 'แอฟริกาใต้', 'กัมพูชา', 'ซานฮวน', 'อิพิสโกพีแคนทูนเมนต์', 
-                            'โมร็อกโก', 'เกาะกลีแปร์ตอน', 'เอกวาดอร์', 'เดอะแวลลีย์', 'ปาเปเอเต', 'เกาะเวก', 'สโลวาเกีย', 'เซาท์ซูดาน', 'สหราชอาณาจักร',
-                            'มอลโดวา', 'เกาะบูแว', 'บราซิล', 'ซานมารีโน', 'รัสเซีย', 'หมู่เกาะเคย์แมน', 'เอธิโอเปีย', 'กุสตาวียา', 'ฮังการี', 'มายอต', 'ยิบรอลตาร์',
-                            'สวิตเซอร์แลนด์', 'เลโซโท', 'โรมาเนีย', 'นาอูรู', 'แฮมิลตัน', 'เกาหลีเหนือ', 'ไนเจอร์', 'เวสต์ไอแลนด์', 'อียิปต์', 'เซวตา', 'อาร์มีเนีย',
-                            'คิงส์ตัน', 'ออสเตรเลีย', 'เกาะนาวาสซา', 'บอสเนียและเฮอร์เซโกวีนา', 'กินี', 'ตูนิเซีย', 'สิงคโปร์', 'ไอร์แลนด์', 'นอร์เวย์', 'หมู่เกาะฟอล์กแลนด์',
-                            'อาโลฟี', 'โอมาน', 'บาโฮนวยโวแบงก์', 'มอลตา', 'มาลาวี', 'อินเดีย', 'บริติชอินเดียนโอเชียนเทร์ริทอรี', 'ติมอร์ตะวันออก', 'เดนมาร์ก', 'เบลารุส', 
-                            'เยเมน', 'เบลีซ', 'นิการากัว', 'ยานไมเอน', 'ลิกเตนสไตน์', 'เวเนซุเอลา', 'ตรินิแดดและโตเบโก', 'วานูอาตู', 'แกมเบีย', 'อารูบา', 'สหรัฐอาหรับเอมิเรตส์',
-                            'ตูวาลู', 'สาธารณรัฐโดมินิกัน', 'ติมอร์-เลสเต', 'ชิเลียนแอนตาร์กติกเทร์ริทอรี', 'ไต้หวัน', 'เอริเทรีย', 'มัลดีฟส์', 'ไทย', 'อิหร่าน', 'วิลเลมสตัด', 'มองโกเลีย', 
-                            'เกาะคริสต์มาส', 'เจมส์ทาวน์', 'อุซเบกิสถาน', 'ฟินแลนด์', 'เกาะเฮิร์ดและหมู่เกาะแมกดอนัลด์', 'คาซัคสถาน', 'สวาซิแลนด์', 'เนปาล', 'หมู่เกาะโซโลมอน', 'ชิลี',
-                            'เกาหลีใต้', 'โปรตุเกส', 'อุรุกวัย', 'คิงเอดเวิร์ดพอยต์', 'แองกวิลลา', 'บูร์กินาฟาโซ', 'โตโก', 'กายอานา', 'เฟรนช์เซาเทิร์นและแอนตาร์ก ติกแลนส์', 'ไลบีเรีย', 
-                            'บุรุนดี', 'นุก', 'เฮติ', 'คิวบา', 'โซมาเลีย', 'หมู่เกาะโคโคส','คีลิง', 'มิดเวย์อะทอลล์', 'ฟอร์-เดอ-ฟร็องส์', 'เซาท์ออสซีเชีย', 'เซอร์เบีย', 'แพลไมราอะทอลล์',
-                            'สแตนลีย์', 'เกาะเซาท์จอร์เจียและหมู่เกาะเซาท์แซนด์วิช', 'เกาะเบเกอร์', 'ไซปรัส', 'เซนต์ลูเซีย', 'เกาะฮาวแลนด์', 'โตเกเลา', 'ศรีลังกา', 'อะวารัว', 'คอสตาริกา',
-                            'อิตาลี', 'มาตา-อูตู', 'อาเซอร์ไบจาน', 'สวีเดน', 'มารีโก', 'หมู่เกาะคะแนรี', 'หมู่เกาะแฟโร', 'สเปน', 'นิวแคลิโดเนีย', 'เติร์กเมนิสถาน', 'ซามัว', 'ตองกา', 
-                            'เซเนกัล', 'แซ็ง-เดอนี', 'นิวซีแลนด์', 'กัวเดอลุป', 'มอริเตเนีย', 'เซร์รานียาแบงก์', 'คอซอวอ', 'กินี-บิสเซา', 'ปารากวัย', 'พม่า', 'บัลแกเรีย', 'ทวีปแอนตาร์กติกา',
-                            'วาลลิสและฟุตูนา', 'ปงตาเดลกาดา', 'ฝรั่งเศส', 'หมู่เกาะคุก', 'โมซัมบิก', 'ปาเลสไตน์', 'ชาร์ลอตต์อะมาลี', 'สาธารณรัฐจีน', 'คิริบาส', 'เจอร์ซีย์', 
-                            'แอลจีเรีย', 'เม็กซิโก', 'นครรัฐวาติกัน', 'ฮอนดูรัส', 'อิรัก', 'คีร์กีซสถาน', 'จิบูตี', 'เซเชลส์', 'เกาะปีเตอร์ที่ 1', 'ยูเครน', 'บาห์เรน', 'เซียร์ราลีโอน', 'ลองเยียร์เบียน', 
-                            'สโลวีเนีย', 'อาร์เจนตินา', 'ซูรินาเม', 'คูเวต', 'รอสส์ดีเพนเดนซี', 'ปากีสถาน', 'อินโดนีเซีย', 'โดมินิกา', 'หมู่เกาะพิตแคร์น', 'ซิมบับเว', 'จอร์เจีย', 'โมนาโก',
-                            'แองโกลา', 'จาเมกา', 'เกรเนดา', 'กรีซ', 'โซมาลีแลนด์', 'หมู่เกาะมาร์แชลล์', 'หมู่เกาะนอร์เทิร์นมาเรียนา', 'เซนต์คิตส์และเนวิส', 'นากอร์โน-คาราบัค',
-                            'เซนต์ปีเตอร์พอร์ต', 'คูราเซา', 'ไซปัน', 'เอลอายุน', 'เซาตูเมและปรินซิปี', 'ซาอุดีอาระเบีย', 'ลักเซมเบิร์ก', 'เมียนมา', 'สาธารณรัฐประชาธิปไตยคองโก', 'ค็อกเบิร์นทาวน์',
-                            'มาเลเซีย', 'กาตาร์', 'เกาะนอร์ฟอล์ก', 'คอโมโรส', 'บาฮามาส', 'แทนซาเนีย', 'อเมริกันซามัว', 'ทอร์สเฮาน์', 'ชาด', 'จีน', 'ซินท์มาร์เทิน', 'ทาจิกิสถาน',
-                            'เวสเทิร์นสะฮารา', 'ลัสปัลมัสเดกรันกานาเรีย', 'กรีนแลนด์', 'ฟิจิ', 'โบลิเวีย', 'ปาเลา', 'หมู่เกาะเวอร์จินของสหรัฐอเมริกา', 'ดักลาส', 'แซมเบีย', 'จอร์แดน',
-                            'โคลอมเบีย', 'ฟีลิพสบูร์ก', 'ลิเบีย', 'จอห์นสตันอะทอลล์', 'ปาปัวนิวกินี', 'เซนต์เฮเลนาอัสเซนชันและตริสตันดากูนยา', 'โกตดิวัวร์','ทรานส์นิสเตรีย', 'จอร์จทาวน์', 'บรูไน', 'เลบานอน', 'เซนต์วินเซนต์และเกรนาดีนส์', 'กานา', 'โอรันเยสตัด', 'ฮากาตญา', 'ซานตากรุซเดเตเนรีเฟ', 'หมู่เกาะแอชมอร์และเกาะคาร์เทียร์', 
-                            'ออสเตรเลียนแอนตาร์กติกเทร์ริทอรี', 'อิเควทอเรียลกินี', 'เบลเยียม', 'บังกลาเทศ', 'เปอร์โตริโก', 'เคปเวิร์ด', 'ไมโครนีเซีย', 'แคเมอรูน', 'กัวเตมาลา', 'เฟรนช์โปลินนีเซีย', 
-                            'เฟรนช์เกียนา', 'แอดัมส์ทาวน์', 'กาบอง', 'สาธารณรัฐคองโก', 'ฟุงชาล', 'มาดากัสการ์', 'แซงปีแยร์และมีเกอลง', 'โครเอเชีย', 'ฟลายอิงฟิชโคฟ', 'เกาะแมน', 'ภูฏาน', 'อาร์เจนไทน์แอนตาร์กติกา',
-                            'เวียดนาม', 'คิงแมนรีฟ', 'มอนต์เซอร์รัต', 'โรดทาวน์', 'มอนเตเนโกร', 'หมู่เกาะบริติชเวอร์จิน', 'พริชตีนา', 'อะโซร์ส', 'แซ็งมาร์แต็ง', 'กวม', 'นากอร์โน-คาราบัค', 'บริติชแอนตาร์กติกเทร์ริทอรี', 'อัฟกานิสถาน', 
-                            'เอสโตเนีย', 'พลิมัท', 'หมู่เกาะเติกส์และหมู่เกาะเคคอส', 'มาซิโดเนีย', 'ซีเรีย', 'ซูดาน', 'เบอร์มิวดา', 'อับฮาเซีย', 'สาธารณรัฐคอซอวอ', 'เยอรมนี', 'เนเธอร์แลนด์', 'บัส-แตร์', 'โปแลนด์',
-                            'แอโครเทียรีและดิเคเลีย', 'ควีนมอดแลนด์', 'นามิเบีย', 'เกิร์นซีย์', 'ยูกันดา', 'ญี่ปุ่น', 'แซง-ปีแยยร์', 'รวันดา', 'Bahamas' ,'Laos', 'Malaysia', 'Micronesia', 'Gabon', 
-                            'Eritrea', 'Egypt', 'Mecklenburg-Schwerin*', 'Benin (Dahomey)', 'Estonia', 'Belize', 'El Salvador', 'Cameroon', 'Montenegro', 'North German Union*', 
-                            'Samoa', 'Russia', 'Suriname', 'Argentina', 'Monaco', 'Oldenburg', 'Iraq', 'Senegal', 'Venezuela', 'Niger', 'Timor-Leste', 'Haiti', 'Chile', 
-                            'Ecuador', 'Philippines', 'Portugal', 'Afghanistan', 'Cuba', 'India', 'Saudi Arabia', 'Qatar', 'Latvia', 'Nigeria', 'Ethiopia',
-                            'Democratic Republic of the Congo', 'Burkina Faso ','Upper Volta', 'Korea', 'Somalia', 'Kosovo', 'Antigua and Barbuda', 
-                            'Fiji', 'Mozambique', 'Uruguay', 'Kingdom of Serbia','Yugoslavia', 'Poland', 'Yemen', 'Algeria', 'Gambia', 'Cote d’Ivoire','Ivory Coast', 
-                            'Cayman Islands', 'Romania',  'Central African Republic', 'Eswatini', 'Sudan', 'Djibouti', 'Republic of Korea ','South Korea', 'Moldova',
-                            'Grenada', 'Congo Free State', 'Mexico', 'Kazakhstan', 'Jordan', 'Maldives', 'Armenia', 'Japan', 'Republic of Genoa', 'Denmark', 
-                            'Morocco', 'Honduras', 'Nauru', 'Mali', 'Greece', 'Guyana', 'North Macedonia', 'Papua New Guinea', 'Belgium', 'Austria', 'South Africa', 
-                            'Switzerland', 'Texas', 'Saint Kitts and Nevis', 'Brunswick','Lüneburg',  'Hawaii', 'Saint Lucia', 'Uzbekistan', 'Israel', 
-                            'Slovenia', 'Equatorial Guinea', 'Andorra', 'Mecklenburg-Strelitz*', 'South Sudan', 'Tajikistan', 'New Zealand', 'Kuwait', 'Hanover', 
-                            'Lew Chew ','Loochoo', 'Tanzania', 'Trinidad and Tobago',  'Brunei', 'Turkey', 'Madagascar', 'Czechia', 'North German Confederation', 
-                            'Saint Vincent','the Grenadines', 'Uganda', 'Duchy of Parma', 'Albania', 'Sierra Leone', 'Sao Tome and Principe', 'Bangladesh', 'Chad', 
-                            'Spain', 'Papal States','Vatican City', 'Belarus', 'Lithuania', 'Bosnia','Herzegovina', 'Nassau', 'Azerbaijan', 'Hanseatic Republics*', 
-                            'Hesse*', 'Rwanda', 'Bavaria', 'Indonesia', 'Bahrain', 'Barbados', 'Lebanon', 'Tonga', 'France', 'Brazil', 'Kiribati', 'Nicaragua',
-                            'Bolivia', 'Search', 'Cyprus', 'Lesotho', 'Jamaica', 'Serbia', 'Württemberg', 'Sri Lanka', 'Tunisia', 'Togo', 'Turkmenistan', 'Libya', 
-                            'Botswana', 'Piedmont-Sardinia', 'Marshall Islands', 'Canada', 'Two Sicilies', 'Namibia', 'Home', 'Mauritius', 'Comoros', 'Nepal', 'Peru',
-                            'Iran', 'Liechtenstein', 'Mauritania', 'Croatia', 'United Arab Emirates, The', 'Syria', 'Angola', 'Italy', 'Federal Government of Germany', 
-                            'Liberia', 'Republic of the Congo', 'Zambia', 'Bulgaria', 'Grand Duchy of Tuscany', 'Vanuatu', 'Ghana', 'Baden*', 'Burundi', 'Georgia',
-                            'Malta', 'Palau', 'Czechoslovakia', 'East Germany', 'San Marino', 'Union of Soviet Socialist Republics', 'Seychelles', 'Dominican Republic', 
-                            'Pakistan', 'Luxembourg', 'China', 'Schaumburg-Lippe', 'Dominica', 'Zimbabwe', 'Singapore', 'Guatemala', 'Holy See', 'Kenya', 'Malawi', 'Panama',
-                            'Netherlands', 'Thailand', 'Solomon Islands',  'Paraguay', 'Hungary', 'Finland', 'Colombia', 'Sweden', 'Kyrgyzstan', 'Orange Free State', 'Australia',
-                            'Slovakia', 'Germany', 'Guinea-Bissau', 'Ireland', 'Norway', 'Cambodia', 'Ukraine', 'Vietnam', 'Iceland', 'United Kingdom', 'Cabo Verde', 
-                            'Tuvalu', 'Costa Rica', 'Oman', 'Burma', 'Mongolia', 'Guinea']
+        self.location_dict = self.get_location_dict()
+        self.locations = self.get_location_list()
 
         self.keywords_to_be_updated = set()
         self.keywords_to_be_removed = []
         self.keywords_removed_from_database = 0
+
+    def get_location_dict(self):
+        with open("dictcountrie.txt", 'r', encoding='utf-8') as f:
+            result = eval(f.read().lower())
+        return result
+    
+    def get_location_list(self):
+        with open("EnglishCountry.txt", "r", encoding="utf-8") as f:
+            result = eval(f.read())
+        return result
 
     def remove_urls(self, urls_to_be_removed:list[str]):
         for url in urls_to_be_removed:
@@ -388,7 +336,9 @@ class Index:
     def get_location_info(self, tokens:dict):
         location = {}
         for token in tokens:
-            if token in self.locations:
+            if token in self.location_dict:
+                location[self.location_dict[token]] = tokens[token]
+            elif token in self.locations:
                 location[token] = tokens[token]
         return location
 
