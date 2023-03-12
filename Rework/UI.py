@@ -45,8 +45,8 @@ class MainWindow(QMainWindow):
         # Create list widget to display search results
         self.list_widget = QListWidget()
 
+        #Create WebEngineView to display map
         self.map = QWebEngineView()
-        self.map
 
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(self.list_widget)
@@ -110,9 +110,10 @@ class MainWindow(QMainWindow):
             self.results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
 
             self.list_widget.addItems([result[0] for result in self.results])
-            self.statusBar().showMessage(f"Found {len(self.results)} results.")
+        self.statusBar().showMessage(f"Found {len(self.results)} results.")
 
     def spatial_graph(self):
+        self.statusBar().showMessage("Plotting...")
         if self.map == self.stacked_widget.currentWidget():
             self.stacked_widget.setCurrentWidget(self.map)
         else:
@@ -127,6 +128,7 @@ class MainWindow(QMainWindow):
             self.mapplot.getMapPlot(locations)
             self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
             self.stacked_widget.setCurrentWidget(self.map)
+        self.statusBar().showMessage(f"Spatial Graph of {self.cached_query}.")
 
     def frequency_graph(self):
         pass
