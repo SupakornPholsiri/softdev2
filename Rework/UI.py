@@ -98,31 +98,35 @@ class MainWindow(QMainWindow):
         self.frequency_graph_button.clicked.connect(self.frequency_graph)
     
     def search(self):
-        self.list_widget.clear()
-        self.stacked_widget.setCurrentWidget(self.list_widget)
+        if self.cached_query == self.search_bar.text():
+            self.stacked_widget.setCurrentWidget(self.list_widget)
+        else:
+            self.list_widget.clear()
+            self.stacked_widget.setCurrentWidget(self.list_widget)
 
-        self.cached_query = self.search_bar.text()
-        query_tokens = self.tokenizer.tokenize(self.cached_query)
-        query_tokens = self.tokenizer.filter(query_tokens)
-        self.results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
+            self.cached_query = self.search_bar.text()
+            query_tokens = self.tokenizer.tokenize(self.cached_query)
+            query_tokens = self.tokenizer.filter(query_tokens)
+            self.results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
 
-        self.list_widget.addItems([result[0] for result in self.results])
-        self.statusBar().showMessage(f"Found {len(self.results)} results.")
+            self.list_widget.addItems([result[0] for result in self.results])
+            self.statusBar().showMessage(f"Found {len(self.results)} results.")
 
     def spatial_graph(self):
-        start = time.time()
-        locations = {}
-        for result in self.results :
-            for loc in result[3]:
-                if loc in locations:
-                    locations[loc] += 1
-                else:
-                    locations[loc] = 1
+        if self.map == self.stacked_widget.currentWidget():
+            self.stacked_widget.setCurrentWidget(self.map)
+        else:
+            locations = {}
+            for result in self.results :
+                for loc in result[3]:
+                    if loc in locations:
+                        locations[loc] += 1
+                    else:
+                        locations[loc] = 1
 
-        self.mapplot.getMapPlot(locations)
-        self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
-        print(time.time()-start)
-        self.stacked_widget.setCurrentWidget(self.map)
+            self.mapplot.getMapPlot(locations)
+            self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
+            self.stacked_widget.setCurrentWidget(self.map)
 
     def frequency_graph(self):
         pass

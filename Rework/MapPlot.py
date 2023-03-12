@@ -9,7 +9,6 @@ class MapPlot:
     def __init__(self):
         #Locate Starting poin at China
         self.geolocator = Nominatim(user_agent="my-app")
-        self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
 
         url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
         country_shapes = f"{url}/world-countries.json"
@@ -37,7 +36,7 @@ class MapPlot:
 
     def getMapPlot(self, Dictcountryname:dict):
         #get Countrie Coordinate Shape
-        self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
+        self.map = folium.Map(location=[48, 68], zoom_start=2)
         #Count number of countries
         CountCountryDict = self.CountnumberofCountry(Dictcountryname)
         #Take country name data
