@@ -1,37 +1,9 @@
-# from geopy.geocoders import Nominatim
-# import folium
-# import webbrowser
-
-# class MapPlot:
-#     def __init__(self):
-#         self.geolocator = Nominatim(user_agent="my-app")
-#         self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
-        
-#     def get_coordinate(self,countryname):
-#         coordinate = []
-#         location = self.geolocator.geocode(countryname)
-#         latitude = int(location.latitude)
-#         longitude = int(location.longitude)
-#         coordinate.append(latitude)
-#         coordinate.append(longitude)
-#         return coordinate
-#     def getMapPlot(self,listcountryname):
-#         for i in listcountryname:
-#             coordinate = self.get_coordinate(i)
-#             popuptext = str(i)
-#             marker = folium.Marker(location=coordinate, popup=popuptext)
-#             marker.add_to(self.map)
-#         self.map.save("Map.html")
-#         webbrowser.open("Map.html")
-# a = MapPlot()
-# a.getMapPlot(["Thailand","China","Thailand"])
 from geopy.geocoders import Nominatim
 import folium
 import webbrowser
 import requests
 import random
 import colorsys
-
 
 class MapPlot:
     def __init__(self):
@@ -98,8 +70,9 @@ class MapPlot:
            CountCountry[country] = Dictcountry[country]
         return CountCountry
     
-map_plot = MapPlot()
-map_plot.getMapPlot({"france":1, "spain":5, "germany":1, "italy":7, "united states of america":9, "china":6})
+if __name__ == "__main__":
+    map_plot = MapPlot()
+    map_plot.getMapPlot({"france":1, "spain":5, "germany":1, "italy":7, "united states of america":9, "china":6})
 
 
 

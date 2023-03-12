@@ -1,16 +1,16 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QListWidget, QListWidgetItem, QToolBar, QStatusBar, QLabel, QComboBox, QSizePolicy
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QListWidget, QListWidgetItem
+from IndexV2 import Index, RawInfoIndex, Database
+from Tokenize import Tokenize
+from Searcher import Search
+from MapPlot import MapPlot
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # Set window properties
-            # Set window properties
-        self.setWindowTitle("Search Bar Example")
+        self.setWindowTitle("Noomle")
         self.setGeometry(100, 100, 800, 600)
         self.setWindowIcon(QIcon('icon.png'))
 
@@ -19,15 +19,10 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(main_widget)
 
         # Create search bar and buttons
-        search_bar = QLineEdit()
-        search_bar.setPlaceholderText("Enter a search term")
-        search_bar.setMinimumWidth(200)
-        search_button = QPushButton("Search")
-        search_button.setStyleSheet("background-color: #0078d7; color: white;")
-        graph_button = QPushButton("Graph Spatial")
-        graph_button.setStyleSheet("background-color: #0078d7; color: white;")
-        graph_frequency_button = QPushButton("Graph Frequency")
-        graph_frequency_button.setStyleSheet("background-color: #0078d7; color: white;")
+        self.create_search_bar()
+        self.create_search_button()
+        self.create_spatial_graph_button()
+        self.create_frequency_graph_button()
 
         # Create toolbar and buttons
         toolbar = QToolBar("Toolbar")
@@ -46,11 +41,11 @@ class MainWindow(QMainWindow):
 
 
         # Create layout for search bar and buttons
-        search_layout = QHBoxLayout()
-        search_layout.addWidget(search_bar)
-        search_layout.addWidget(search_button)
-        search_layout.addWidget(graph_button)
-        search_layout.addWidget(graph_frequency_button)
+        self.search_layout = QHBoxLayout()
+        self.search_layout.addWidget(self.search_bar)
+        self.search_layout.addWidget(self.search_button)
+        self.search_layout.addWidget(self.spatial_graph_button)
+        self.search_layout.addWidget(self.frequency_graph_button)
 
         # Create list widget to display search results
         self.list_widget = QListWidget()
@@ -72,6 +67,48 @@ class MainWindow(QMainWindow):
         print(item.text())
 
 
+        self.index = Index()
+        self.index.read_fw_index_from_database(self.db)
+        self.index.read_ivi_index_from_database(self.db)
+
+        self.mapplot = MapPlot()
+
+    def create_search_bar(self):
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Enter a search term")
+        self.search_bar.setMinimumWidth(200)
+
+    def create_search_button(self):
+        self.search_button = QPushButton("Search")
+        self.search_button.setStyleSheet("background-color: #0078d7; color: white;")
+        self.search_button.clicked.connect(self.search)
+
+    def create_spatial_graph_button(self):
+        self.spatial_graph_button = QPushButton("Spatial Graph")
+        self.spatial_graph_button.setStyleSheet("background-color: #0078d7; color: white;")
+        self.spatial_graph_button.clicked.connect(self.spatial_graph)
+
+    def create_frequency_graph_button(self):
+        self.frequency_graph_button = QPushButton("Graph Frequency")
+        self.frequency_graph_button.setStyleSheet("background-color: #0078d7; color: white;")
+        self.frequency_graph_button.clicked.connect(self.frequency_graph)
+    
+    def search(self):
+        self.list_widget.clear()
+
+        query = self.search_bar.text()
+        query_tokens = self.tokenizer.tokenize(query)
+        query_tokens = self.tokenizer.filter(query_tokens)
+        results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
+
+        self.list_widget.addItems([result[0] for result in results])
+        self.statusBar().showMessage(f"Found {len(results)} results.")
+
+    def spatial_graph(self):
+        pass
+
+    def frequency_graph(self):
+        pass
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
