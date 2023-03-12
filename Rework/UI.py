@@ -1,12 +1,34 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QListWidget, QListWidgetItem, QStackedWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QThread, pyqtSignal
 from IndexV2 import Index, RawInfoIndex, Database
 from Tokenize import Tokenize
 from Searcher import Search
 from MapPlot import MapPlot
 import time
+
+class SpatialGraphThread(QThread):
+    done_signal = pyqtSignal()
+
+    def __init__(self, results):
+        super().__init__()
+        self.results = results
+        self.locations = {}
+
+    def run(self):
+        # Compute location frequencies
+        for result in self.results :
+            for loc in result[3]:
+                if loc in self.locations:
+                    self.locations[loc] += 1
+                else:
+                    self.locations[loc] = 1
+
+        # Generate map plot
+        mapplot = MapPlot()
+        mapplot.getMapPlot(self.locations)
+        self.done_signal.emit()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -116,18 +138,16 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Plotting...")
         if self.map == self.stacked_widget.currentWidget():
             self.stacked_widget.setCurrentWidget(self.map)
+            self.statusBar().showMessage(f"Spatial Graph of {self.cached_query}.")
         else:
-            locations = {}
-            for result in self.results :
-                for loc in result[3]:
-                    if loc in locations:
-                        locations[loc] += 1
-                    else:
-                        locations[loc] = 1
+            self.thread1 = SpatialGraphThread(self.results)
+            self.thread1.start()
+            self.thread1.done_signal.connect(self.spatial_graph_done)
 
-            self.mapplot.getMapPlot(locations)
-            self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
-            self.stacked_widget.setCurrentWidget(self.map)
+    def spatial_graph_done(self):
+        self.thread1.terminate()
+        self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
+        self.stacked_widget.setCurrentWidget(self.map)
         self.statusBar().showMessage(f"Spatial Graph of {self.cached_query}.")
 
     def frequency_graph(self):
