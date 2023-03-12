@@ -11,6 +11,10 @@ class MapPlot:
         self.geolocator = Nominatim(user_agent="my-app")
         self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
 
+        url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
+        country_shapes = f"{url}/world-countries.json"
+        self.countries_geojson = requests.get(country_shapes).json()
+
     def get_coordinate(self,countryname):
         #Get Coordinate (Latitude,Longtitude) using geolocatoer
         location = self.geolocator.geocode(countryname)
@@ -33,9 +37,7 @@ class MapPlot:
 
     def getMapPlot(self, Dictcountryname:dict):
         #get Countrie Coordinate Shape
-        url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
-        country_shapes = f"{url}/world-countries.json"
-        countries_geojson = requests.get(country_shapes).json()
+        self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
         #Count number of countries
         CountCountryDict = self.CountnumberofCountry(Dictcountryname)
         #Take country name data
@@ -51,17 +53,16 @@ class MapPlot:
                 #set marker to coordinate
                 folium.Marker([coords[0], coords[1]],icon=folium.features.DivIcon(icon_size=(150,36),icon_anchor=(0,0),
                 html=f'<div style="font-size: 24pt; color: red; font-weight: bold">{count}</div>')).add_to(self.map)
-                for feature in countries_geojson["features"]:
+                for feature in self.countries_geojson["features"]:
                     #Loop for get all of coordinates for that countries to draw a border and fill with color
                     if feature["properties"]["name"].lower() == listcountryname[i]:
                         folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x, 
                         i=i: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},
                         tooltip=listcountryname[i]).add_to(self.map)
             except:
-                print(f"No coordinates found for {listcountryname[i]}")
+                pass
         #save map and open broswer
         self.map.save("Map.html")
-        webbrowser.open("Map.html")
     
     def CountnumberofCountry(self,Dictcountry):
         #Count the number of countries

@@ -1,22 +1,27 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QListWidget, QListWidgetItem, QStackedWidget
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtCore import QUrl
 from IndexV2 import Index, RawInfoIndex, Database
 from Tokenize import Tokenize
 from Searcher import Search
 from MapPlot import MapPlot
+import time
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.cached_query = ""
+        self.results = []
+
         # Set window properties
         self.setWindowTitle("Noomle")
         self.setGeometry(100, 100, 800, 600)
-        self.setWindowIcon(QIcon('icon.png'))
 
         # Create main widget
-        main_widget = QWidget()
-        self.setCentralWidget(main_widget)
+        self.main_widget = QWidget()
+        self.setCentralWidget(self.main_widget)
 
         # Create search bar and buttons
         self.create_search_bar()
@@ -25,20 +30,10 @@ class MainWindow(QMainWindow):
         self.create_frequency_graph_button()
 
         # Create toolbar and buttons
-        toolbar = QToolBar("Toolbar")
-        toolbar.setIconSize(QSize(16,16))
-        self.addToolBar(toolbar)
-
-        add_website_button = toolbar.addAction( "Add Website")
-        remove_website_button = toolbar.addAction( "Remove Website")
-        update_website_button = toolbar.addAction( "Update Website")
-        pause_button = toolbar.addAction( "Pause")
-
-        # Create status bar and label
-        status_bar = QStatusBar()
-        status_label = QLabel("Ready")
-        status_bar.addWidget(status_label)
-
+        self.toolbar = self.addToolBar("Toolbar")
+        self.scrape = self.toolbar.addAction("Scrape")
+        self.add_website_button = self.toolbar.addAction("Add Website")
+        self.remove_website_button = self.toolbar.addAction("Remove Website")
 
         # Create layout for search bar and buttons
         self.search_layout = QHBoxLayout()
@@ -49,23 +44,32 @@ class MainWindow(QMainWindow):
 
         # Create list widget to display search results
         self.list_widget = QListWidget()
-        self.list_widget.setStyleSheet("QListWidget::item {padding: 10px;}")
-        self.list_widget.itemDoubleClicked.connect(self.on_list_widget_item_double_clicked)
+
+        self.map = QWebEngineView()
+        self.map
+
+        self.stacked_widget = QStackedWidget()
+        self.stacked_widget.addWidget(self.list_widget)
+        self.stacked_widget.addWidget(self.map)
+
+        self.statusBar().showMessage("Test")
 
         # Create layout for main widget
-        main_layout = QVBoxLayout()
-        main_layout.addLayout(search_layout)
-        main_layout.addWidget(self.list_widget)
+        self.main_layout = QVBoxLayout()
+        self.main_layout.addLayout(self.search_layout)
+        self.main_layout.addWidget(self.stacked_widget)
 
         # Set main widget layout
-        main_widget.setLayout(main_layout)
+        self.main_widget.setLayout(self.main_layout)
 
-        # Set status bar
-        self.setStatusBar(status_bar)
+        self.db = Database(SearchEngine="ForSpiderTest")
 
-    def on_list_widget_item_double_clicked(self, item):
-        print(item.text())
+        self.tokenizer = Tokenize()
 
+        self.searcher = Search()
+        
+        self.raw_index = RawInfoIndex()
+        self.raw_index.read_from_database(self.db)
 
         self.index = Index()
         self.index.read_fw_index_from_database(self.db)
@@ -95,17 +99,30 @@ class MainWindow(QMainWindow):
     
     def search(self):
         self.list_widget.clear()
+        self.stacked_widget.setCurrentWidget(self.list_widget)
 
-        query = self.search_bar.text()
-        query_tokens = self.tokenizer.tokenize(query)
+        self.cached_query = self.search_bar.text()
+        query_tokens = self.tokenizer.tokenize(self.cached_query)
         query_tokens = self.tokenizer.filter(query_tokens)
-        results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
+        self.results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
 
-        self.list_widget.addItems([result[0] for result in results])
-        self.statusBar().showMessage(f"Found {len(results)} results.")
+        self.list_widget.addItems([result[0] for result in self.results])
+        self.statusBar().showMessage(f"Found {len(self.results)} results.")
 
     def spatial_graph(self):
-        pass
+        start = time.time()
+        locations = {}
+        for result in self.results :
+            for loc in result[3]:
+                if loc in locations:
+                    locations[loc] += 1
+                else:
+                    locations[loc] = 1
+
+        self.mapplot.getMapPlot(locations)
+        self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
+        print(time.time()-start)
+        self.stacked_widget.setCurrentWidget(self.map)
 
     def frequency_graph(self):
         pass
@@ -115,4 +132,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
