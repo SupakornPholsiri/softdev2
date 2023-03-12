@@ -25,10 +25,9 @@ class MainWindow(QMainWindow):
 
         # Create toolbar and buttons
         self.toolbar = self.addToolBar("Toolbar")
+        self.scrape = self.toolbar.addAction("Scrape")
         self.add_website_button = self.toolbar.addAction("Add Website")
         self.remove_website_button = self.toolbar.addAction("Remove Website")
-        self.update_website_button = self.toolbar.addAction("Update Website")
-        self.pause_button = self.toolbar.addAction("Pause")
 
         # Create layout for search bar and buttons
         self.search_layout = QHBoxLayout()
@@ -39,6 +38,8 @@ class MainWindow(QMainWindow):
 
         # Create list widget to display search results
         self.list_widget = QListWidget()
+
+        self.statusBar().showMessage("Test")
 
         # Create layout for main widget
         self.main_layout = QVBoxLayout()
@@ -67,9 +68,10 @@ class MainWindow(QMainWindow):
         query = self.search_bar.text()
         query_tokens = self.tokenizer.tokenize(query)
         query_tokens = self.tokenizer.filter(query_tokens)
-
         results = self.searcher.search(query_tokens, self.raw_index.index, self.index.fw_index, self.index.ivi_index)
+
         self.list_widget.addItems([result[0] for result in results])
+        self.statusBar().showMessage(f"Found {len(results)} results.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
