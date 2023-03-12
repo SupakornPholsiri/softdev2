@@ -19,6 +19,13 @@ class MainWindow(QMainWindow):
         graph_button = QPushButton("Graph Spatial")
         graph_frequency_button = QPushButton("Graph Frequency")
 
+        # Create toolbar and buttons
+        toolbar = self.addToolBar("Toolbar")
+        add_website_button = toolbar.addAction("Add Website")
+        remove_website_button = toolbar.addAction("Remove Website")
+        update_website_button = toolbar.addAction("Update Website")
+        pause_button = toolbar.addAction("Pause")
+
         # Create layout for search bar and buttons
         search_layout = QHBoxLayout()
         search_layout.addWidget(search_bar)
@@ -37,8 +44,10 @@ class MainWindow(QMainWindow):
         # Set main widget layout
         main_widget.setLayout(main_layout)
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+

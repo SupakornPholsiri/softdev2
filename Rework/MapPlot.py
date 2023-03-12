@@ -32,16 +32,20 @@ import requests
 import random
 import colorsys
 
+
 class MapPlot:
     def __init__(self):
+        #Locate Starting poin at China
         self.geolocator = Nominatim(user_agent="my-app")
         self.map = folium.Map(location=[35.8617, 104.1954], zoom_start=4)
 
     def get_coordinate(self,countryname):
+        #Get Coordinate (Latitude,Longtitude) using geolocatoer
         location = self.geolocator.geocode(countryname)
         return [location.latitude, location.longitude]
 
     def generate_random_colors(self,num_colors):
+        #generate random color in hexadecimal and return list of colors
         colors = []
         for i in range(num_colors):
             hue = i/num_colors
@@ -56,29 +60,39 @@ class MapPlot:
         return colors
 
     def getMapPlot(self, Dictcountryname:dict):
+        #get Countrie Coordinate Shape
         url = "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data"
         country_shapes = f"{url}/world-countries.json"
         countries_geojson = requests.get(country_shapes).json()
+        #Count number of countries
         CountCountryDict = self.CountnumberofCountry(Dictcountryname)
+        #Take country name data
         listcountryname = list(Dictcountryname.keys())
+        #generate random color
         listcolor = self.generate_random_colors(len(CountCountryDict))
-        print(len(CountCountryDict))
-        print(listcolor)
+        #Loop depend on number of Listcountryname
         for i in range(len(listcountryname)):
             count = CountCountryDict[listcountryname[i]]
             try:
+                #get coordinate with geolocator
                 coords = self.get_coordinate(listcountryname[i])
-                folium.Marker([coords[0], coords[1]],icon=folium.features.DivIcon(icon_size=(150,36),icon_anchor=(0,0),html=f'<div style="font-size: 24pt; color: red; font-weight: bold">{count}</div>')).add_to(self.map)
+                #set marker to coordinate
+                folium.Marker([coords[0], coords[1]],icon=folium.features.DivIcon(icon_size=(150,36),icon_anchor=(0,0),
+                html=f'<div style="font-size: 24pt; color: red; font-weight: bold">{count}</div>')).add_to(self.map)
                 for feature in countries_geojson["features"]:
+                    #Loop for get all of coordinates for that countries to draw a border and fill with color
                     if feature["properties"]["name"].lower() == listcountryname[i]:
-                        print("found",i)
-                        folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x, i=i: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},tooltip=listcountryname[i]).add_to(self.map)
+                        folium.GeoJson(feature,name=listcountryname[i],style_function=lambda x, 
+                        i=i: {'fillColor': listcolor[i], 'color': 'black', 'weight': 2},
+                        tooltip=listcountryname[i]).add_to(self.map)
             except:
                 print(f"No coordinates found for {listcountryname[i]}")
+        #save map and open broswer
         self.map.save("Map.html")
         webbrowser.open("Map.html")
     
     def CountnumberofCountry(self,Dictcountry):
+        #Count the number of countries
         CountCountry = {}
         for country in Dictcountry:
            CountCountry[country] = Dictcountry[country]
