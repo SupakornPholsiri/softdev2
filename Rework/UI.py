@@ -35,6 +35,8 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.cached_query = ""
+        self.cached_spatial_query = ""
+        self.cached_graph_query = ""
         self.results = []
 
         # Set window properties
@@ -136,9 +138,9 @@ class MainWindow(QMainWindow):
 
     def spatial_graph(self):
         self.statusBar().showMessage("Plotting...")
-        if self.map == self.stacked_widget.currentWidget():
+        if self.map == self.stacked_widget.currentWidget() or self.cached_spatial_query == self.cached_query:
             self.stacked_widget.setCurrentWidget(self.map)
-            self.statusBar().showMessage(f"Spatial Graph of {self.cached_query}.")
+            self.statusBar().showMessage(f"Spatial Graph of {self.cached_spatial_query}.")
         else:
             self.thread1 = SpatialGraphThread(self.results)
             self.thread1.start()
@@ -147,8 +149,9 @@ class MainWindow(QMainWindow):
     def spatial_graph_done(self):
         self.thread1.terminate()
         self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
-        self.stacked_widget.setCurrentWidget(self.map)
-        self.statusBar().showMessage(f"Spatial Graph of {self.cached_query}.")
+        self.cached_spatial_query = self.cached_query
+        print(self.cached_spatial_query)
+        self.statusBar().showMessage(f"Spatial Graph of {self.cached_spatial_query} loaded.")
 
     def frequency_graph(self):
         pass
