@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
 
         # Create list widget to display search results
         self.list_widget = QListWidget()
+        self.scrape_status_widget = QListWidget()
 
         #Create WebEngineView to display map
         self.map = QWebEngineView()
@@ -75,6 +76,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(self.list_widget)
         self.stacked_widget.addWidget(self.map)
+        self.stacked_widget.addWidget(self.scrape_status_widget)
 
         self.statusBar().showMessage("Test")
 
@@ -140,14 +142,15 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Plotting...")
         if self.map == self.stacked_widget.currentWidget() or self.cached_spatial_query == self.cached_query:
             self.stacked_widget.setCurrentWidget(self.map)
+            self.map.reload()
             self.statusBar().showMessage(f"Spatial Graph of {self.cached_spatial_query}.")
         else:
-            self.thread1 = SpatialGraphThread(self.results)
-            self.thread1.start()
-            self.thread1.done_signal.connect(self.spatial_graph_done)
+            self.spatial_thread = SpatialGraphThread(self.results)
+            self.spatial_thread.start()
+            self.spatial_thread.done_signal.connect(self.spatial_graph_done)
 
     def spatial_graph_done(self):
-        self.thread1.terminate()
+        self.spatial_thread.terminate()
         self.map.load(QUrl.fromLocalFile(r"C:\Users\supak\Documents\GitHub\softdev2\Rework\Map.html"))
         self.cached_spatial_query = self.cached_query
         print(self.cached_spatial_query)

@@ -47,6 +47,7 @@ def main(raw_index:RawInfoIndex):
 
 if __name__ == "__main__":
     start = time.time()
+    
     main(raw_storage)
     raw_storage.save_to_database(db)
     print(Spider.unaccessible_urls)

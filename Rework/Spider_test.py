@@ -15,17 +15,18 @@ def generate_and_crawl(spider:Spider, raw_index:RawInfoIndex, thread_num:int, cr
     try:
         url = Spider.queue[Spider.queue_front]
         assert spider.generate_next_soup()
-    except: return
-
+    except AssertionError: return
+    
     crawl_lock.acquire()
-    if url in raw_storage.index:
-        hash_in_storage = raw_storage.index[url]["hash"]
+    if url in raw_index.index:
+        hash_in_storage = raw_index.index[url]["hash"]
     else:
         hash_in_storage = None
     data = spider.crawl(hash_in_storage)
     if data :
         raw_text, links, hash = data
     else:
+        crawl_lock.release()
         return
     print("Thread",thread_num,"URL in queue:", len(Spider.queue) - Spider.queue_front,"|","URL in crawled:", len(Spider.crawled), f"Scraped {spider.url}")
     crawl_lock.release()

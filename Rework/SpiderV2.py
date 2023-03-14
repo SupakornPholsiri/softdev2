@@ -70,6 +70,7 @@ class Spider:
     def crawl(self, hash_in_storage):
         """Scrape the links and text from website"""
         if hash_in_storage == self.hash :
+            self.add_links_to_queue()
             return None
         if Spider.max_depth > Spider.depth:
             self.add_links_to_queue()
@@ -96,19 +97,22 @@ class Spider:
         if self.check_if_can_scrape(url) :
             if Spider.try_change_depth() :
                 Spider.queue_back = len(Spider.queue)
-            html = requests.get(url)
-            if html.status_code == 404:
-                Spider.unaccessible_urls.append(url)
-                return False
-            elif html.is_permanent_redirect :
-                url = html.url
-                if not self.check_if_can_scrape(url):
+            try:
+                html = requests.get(url)
+                if html.status_code == 404:
                     Spider.unaccessible_urls.append(url)
-                    return self.check_if_can_scrape(url)
-                Spider.queue[Spider.queue_front-1] = url
-            self.url = url
-            self.soup = BeautifulSoup(html.text, "html.parser")
-            self.hash = hashlib.sha256(self.soup.text.encode()).hexdigest()
+                    return False
+                elif html.is_permanent_redirect :
+                    url = html.url
+                    if not self.check_if_can_scrape(url):
+                        Spider.unaccessible_urls.append(url)
+                        return self.check_if_can_scrape(url)
+                    Spider.queue[Spider.queue_front-1] = url
+                self.url = url
+                self.soup = BeautifulSoup(html.text, "html.parser")
+                self.hash = hashlib.sha256(self.soup.text.encode()).hexdigest()
+            except:
+                return False
         else:
             Spider.unaccessible_urls.append(url)
         return self.check_if_can_scrape(url)
@@ -132,6 +136,7 @@ class Spider:
     #Translate relative or absolute path into full url
     def parse_url(self, url:str, base_url:str):
         if url[0] == "/": base_url = f"https://{self.get_base_domain(base_url)}"
+        url = url.split("#")[0]
         splited_url, splited_base = url.split("/"), base_url.split("/")
         to_join = []
         current = -1
@@ -162,6 +167,7 @@ class Spider:
             if href.startswith("//"):
                 continue #links.add(f'https:{link_html["href"]}')
             if href.startswith("https://") or href.startswith("http://"):
+                href = href.split("#")[0]
                 links.add(href)
             else:
                 links.add(self.parse_url(href, self.url))
