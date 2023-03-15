@@ -115,6 +115,7 @@ class MainWindow(QMainWindow):
 
     def show_scrape_status(self):
         self.tab_widget.setCurrentIndex(1)
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

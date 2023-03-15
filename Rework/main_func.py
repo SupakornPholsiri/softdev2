@@ -97,7 +97,6 @@ class AppMainWindow(MainWindow):
         super().__init__()
 
         self.root_urls = ["https://iot-kmutnb.github.io/blogs"]
-
         self.cached_query = ""
         self.cached_spatial_query = ""
         self.cached_graph_query = ""

@@ -15,10 +15,6 @@ for i in data:
     
 print(keyword)
 
-
-
-
-
 freq = list(listdata.values())
 keywords =list(listdata.keys())
 # Create a bar chart using Plotly
