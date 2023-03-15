@@ -35,15 +35,18 @@ class ScrapeThread(QThread):
     web_scraped_signal = pyqtSignal(str)
     done_signal = pyqtSignal()
 
-    def __init__(self, root_urls:list, raw_index:RawInfoIndex, tokenizer:Tokenize, db:Database):
+    def __init__(self, root_urls:list, raw_index:RawInfoIndex, index:Index, tokenizer:Tokenize, db:Database):
         super().__init__()
         self.root_urls = root_urls.copy()
         self.raw_index = raw_index
+        self.index = index
         self.tokenizer = tokenizer
         self.db = db
 
     def run(self):
         Spider.queue = self.root_urls
+        Spider.crawled = []
+        Spider.unaccessible_urls = []
         Spider.base_domains = []
         Spider.set_base_domains(self.root_urls)
         Spider.queue_front = 0
@@ -52,6 +55,7 @@ class ScrapeThread(QThread):
 
         spider = Spider()
         while Spider.queue_front != len(Spider.queue):
+            print(Spider.queue[Spider.queue_front], Spider.queue_front)
             try:
                 url = Spider.queue[Spider.queue_front]
                 assert spider.generate_next_soup()
@@ -70,13 +74,22 @@ class ScrapeThread(QThread):
                     self.raw_index.modify_index(url, raw_text, links, hash)
                     self.web_scraped_signal.emit(f"URLs in queue: {len(Spider.queue) - Spider.queue_front} | URLs crawled: {len(Spider.crawled)} | Scraped {spider.url}")
                 else:
-                    print("Still working")
                     pass
                 
             except AssertionError:
                 pass
-        self.web_scraped_signal.emit("Saving to database...")
+        self.raw_index.remove_urls(Spider.unaccessible_urls)
         self.raw_index.save_to_database(self.db)
+        for url in self.raw_index.index:
+            tokens = self.tokenizer.tokenize(self.raw_index.index[url]["text"])
+            tokens = self.tokenizer.filter(tokens)
+            tokens = self.tokenizer.make_counter(tokens)
+            self.index.remove_urls(self.raw_index.url_to_be_deleted)
+            self.index.modify_index(url, tokens)
+        self.web_scraped_signal.emit("Saving to database...")
+        self.index.remove_urls(self.raw_index.url_to_be_deleted)
+        self.index.save_fw_index_to_database(self.db)
+        self.index.save_ivi_index_to_database(self.db)
         self.done_signal.emit()       
 
 class AppMainWindow(MainWindow):
@@ -142,7 +155,7 @@ class AppMainWindow(MainWindow):
 
     def scrape(self):
         self.statusBar().showMessage("Scraping...")
-        self.scrape_thread = ScrapeThread(self.root_urls, self.raw_index, self.tokenizer, self.db)
+        self.scrape_thread = ScrapeThread(self.root_urls, self.raw_index, self.index, self.tokenizer, self.db)
         self.scrape_thread.web_scraped_signal.connect(self.add_scrape_status)
         self.scrape_thread.done_signal.connect(self.scrape_done)
         self.scrape_thread.start()

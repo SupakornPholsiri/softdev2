@@ -65,7 +65,7 @@ class Spider:
                     can_scrape = True
                 if link in Spider.crawled or link in Spider.queue or link == self.url or not can_scrape:
                     continue
-            Spider.queue.append(link)
+                Spider.queue.append(link)
 
     def crawl(self, hash_in_storage):
         """Scrape the links and text from website"""
@@ -112,6 +112,7 @@ class Spider:
                 self.soup = BeautifulSoup(html.text, "html.parser")
                 self.hash = hashlib.sha256(self.soup.text.encode()).hexdigest()
             except:
+                Spider.unaccessible_urls.append(url)
                 return False
         else:
             Spider.unaccessible_urls.append(url)
