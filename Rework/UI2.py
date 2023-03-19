@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLineEdit, QPushButton, \
-    QHBoxLayout, QVBoxLayout, QListWidget, QStackedWidget, QTabWidget
+    QHBoxLayout, QVBoxLayout, QListWidget, QStackedWidget, QTabWidget, QInputDialog
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 class MainWindow(QMainWindow):
@@ -25,8 +25,7 @@ class MainWindow(QMainWindow):
         self.toolbar = self.addToolBar("Toolbar")
         self.search_action = self.toolbar.addAction("Search")
         self.scrape_action = self.toolbar.addAction("Scrape")
-        self.add_website_button = self.toolbar.addAction("Add Website")
-        self.remove_website_button = self.toolbar.addAction("Remove Website")
+        self.URL_view_action = self.toolbar.addAction("Add/Remove Website")
 
         # Create layout for search bar and buttons
         self.search_layout = QHBoxLayout()
@@ -78,10 +77,36 @@ class MainWindow(QMainWindow):
         self.scrape_widget = QWidget()
         self.scrape_widget.setLayout(self.scrape_layout)
 
+        self.add_website_button = QPushButton("Add Website")
+        self.add_website_button.setStyleSheet("background-color: #0078d7; color: white;")
+        self.remove_website_button = QPushButton("Remove Website")
+        self.remove_website_button.setStyleSheet("background-color: #0078d7; color: white;")
+
+        self.URL_input = QLineEdit()
+        self.URL_input.setPlaceholderText("Enter a URL")
+        self.URL_input.setMinimumWidth(200)
+
+        self.root_URL_list = QListWidget()
+        self.URL_list = QListWidget()
+        
+        self.URL_bar_layout = QHBoxLayout()
+        self.URL_bar_layout.addWidget(self.URL_input)
+        self.URL_bar_layout.addWidget(self.add_website_button)
+        self.URL_bar_layout.addWidget(self.remove_website_button)
+
+        self.URL_view_layout = QVBoxLayout()
+        self.URL_view_layout.addLayout(self.URL_bar_layout)
+        self.URL_view_layout.addWidget(self.root_URL_list)
+        self.URL_view_layout.addWidget(self.URL_list)
+
+        self.URL_view_widget = QWidget()
+        self.URL_view_widget.setLayout(self.URL_view_layout)
+
         # Create tab widget to switch between search results and scrape status
         self.tab_widget = QTabWidget()
         self.tab_widget.addTab(self.search_widget, "Search Results")
         self.tab_widget.addTab(self.scrape_widget, "Scrape Status")
+        self.tab_widget.addTab(self.URL_view_widget, "Add/Remove Website")
 
         self.main_layout = QVBoxLayout()
         self.main_layout.addWidget(self.tab_widget)
@@ -115,7 +140,6 @@ class MainWindow(QMainWindow):
 
     def show_scrape_status(self):
         self.tab_widget.setCurrentIndex(1)
-    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

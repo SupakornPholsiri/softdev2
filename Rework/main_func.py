@@ -9,6 +9,8 @@ import sys
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QThread, pyqtSignal, QUrl
 
+import atexit
+
 class SpatialGraphThread(QThread):
     done_signal = pyqtSignal()
 
@@ -43,7 +45,6 @@ class ScrapeThread(QThread):
         self.tokenizer = tokenizer
         self.db = db
 
-    def run(self):
         Spider.queue = self.root_urls
         Spider.crawled = []
         Spider.unaccessible_urls = []
@@ -53,9 +54,26 @@ class ScrapeThread(QThread):
         Spider.queue_back = len(Spider.queue)
         Spider.depth = 0
 
+        self.raw_index.url_to_be_updated = set()
+        self.raw_index.url_to_be_deleted = []
+        self.raw_index.in_queue_deleted = 0
+
+        self.index.urls_in_queue = []
+        self.index.urls_queue_front = 0
+
+        self.indexurls_to_be_updated = set()
+        self.index.urls_to_be_removed = []
+        self.index.urls_removed_from_database = 0
+
+        self.index.keywords_to_be_updated = set()
+        self.index.keywords_to_be_removed = []
+        self.index.keywords_removed_from_database = 0
+
+    def run(self):
+
         spider = Spider()
         while Spider.queue_front != len(Spider.queue):
-            print(Spider.queue[Spider.queue_front], Spider.queue_front)
+            print(len(Spider.queue), Spider.queue[Spider.queue_front], Spider.queue_front, Spider.queue_back, Spider.depth)
             try:
                 url = Spider.queue[Spider.queue_front]
                 assert spider.generate_next_soup()
@@ -96,11 +114,15 @@ class AppMainWindow(MainWindow):
     def __init__(self):
         super().__init__()
 
-        self.root_urls = ["https://iot-kmutnb.github.io/blogs"]
+        with open("root_urls.txt", "r", encoding="utf-8") as f:
+            self.root_urls = f.read().splitlines() 
+            f.close()
         self.cached_query = ""
         self.cached_spatial_query = ""
         self.cached_graph_query = ""
         self.results = []
+
+        self.url_target = ""
 
         self.db = Database(SearchEngine="ForSpiderTest")
 
@@ -110,6 +132,7 @@ class AppMainWindow(MainWindow):
         
         self.raw_index = RawInfoIndex()
         self.raw_index.read_from_database(self.db)
+        self.URL_list.addItems(self.raw_index.get_urls())
 
         self.index = Index()
         self.index.read_fw_index_from_database(self.db)
@@ -119,6 +142,14 @@ class AppMainWindow(MainWindow):
         self.spatial_graph_button.clicked.connect(self.spatial_graph)
 
         self.scrape_begin_button.clicked.connect(self.scrape)
+
+        self.URL_view_action.triggered.connect(self.refresh_URL_list)
+        self.add_website_button.clicked.connect(self.add_root_url)
+        self.remove_website_button.clicked.connect(self.remove_URL)
+        self.root_URL_list.itemClicked.connect(self.change_URL_target)
+        self.URL_list.itemClicked.connect(self.change_URL_target)
+
+        self.tab_widget.currentChanged.connect(self.change_tab)
 
     def search(self):
         if self.cached_query == self.search_bar.text():
@@ -154,6 +185,7 @@ class AppMainWindow(MainWindow):
 
     def scrape(self):
         self.statusBar().showMessage("Scraping...")
+        print(self.root_urls)
         self.scrape_thread = ScrapeThread(self.root_urls, self.raw_index, self.index, self.tokenizer, self.db)
         self.scrape_thread.web_scraped_signal.connect(self.add_scrape_status)
         self.scrape_thread.done_signal.connect(self.scrape_done)
@@ -166,8 +198,47 @@ class AppMainWindow(MainWindow):
         self.scrape_thread.terminate()
         self.statusBar().showMessage("Scraping done")
 
+    def change_tab(self, index):
+        if index == 2:
+            self.refresh_URL_list()
+    
+    def add_root_url(self):
+        URL_input = self.URL_input.text()
+        if URL_input not in self.root_urls and URL_input != "":
+            self.root_urls.append(URL_input)
+        self.refresh_URL_list()
+
+    def refresh_URL_list(self):
+        self.root_URL_list.clear()
+        self.URL_list.clear()
+        self.root_URL_list.addItems(self.root_urls)
+        self.URL_list.addItems(self.raw_index.get_urls())
+        self.tab_widget.setCurrentIndex(2)
+        self.statusBar().showMessage("Refreshed")
+
+    def change_URL_target(self, item):
+        print(item.text())
+        self.url_target = item.text()
+
+    def remove_URL(self):
+        if self.url_target in self.root_urls or self.url_target in self.raw_index.get_urls():
+            self.root_urls.remove(self.url_target)
+            self.raw_index.remove_urls([self.url_target])
+            self.index.remove_urls([self.url_target])
+            self.raw_index.save_to_database(self.db)
+            self.index.save_fw_index_to_database(self.db)
+            self.index.save_ivi_index_to_database(self.db)
+            self.refresh_URL_list()
+
+    def exit_handler(self):
+        with open("root_urls.txt", "w", encoding="utf-8") as f:
+            for root_url in self.root_urls:
+                f.write(f"{root_url}\n")
+            f.close()
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = AppMainWindow()
+    atexit.register(window.exit_handler)
     window.show()
     sys.exit(app.exec_())

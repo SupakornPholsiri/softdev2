@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import urllib.robotparser
 import hashlib
 import requests
+import re
 class Spider:
     #The web crawler
     queue = []
@@ -70,10 +71,9 @@ class Spider:
     def crawl(self, hash_in_storage):
         """Scrape the links and text from website"""
         if hash_in_storage == self.hash :
-            self.add_links_to_queue()
+            if Spider.max_depth > Spider.depth:
+                self.add_links_to_queue()
             return None
-        if Spider.max_depth > Spider.depth:
-            self.add_links_to_queue()
         Spider.crawled.append(self.url)
         return (self.get_text(), list(self.get_links()), self.hash)
 
@@ -138,6 +138,7 @@ class Spider:
     def parse_url(self, url:str, base_url:str):
         if url[0] == "/": base_url = f"https://{self.get_base_domain(base_url)}"
         url = url.split("#")[0]
+        if url[-1] == "/" : url = url[:-1]
         splited_url, splited_base = url.split("/"), base_url.split("/")
         to_join = []
         current = -1
@@ -169,9 +170,9 @@ class Spider:
                 continue #links.add(f'https:{link_html["href"]}')
             if href.startswith("https://") or href.startswith("http://"):
                 href = href.split("#")[0]
-                links.add(href)
+                links.add(re.sub(r"\x00+","",href))
             else:
-                links.add(self.parse_url(href, self.url))
+                links.add(re.sub(r"\x00+","",self.parse_url(href, self.url)))
         return links
 
     

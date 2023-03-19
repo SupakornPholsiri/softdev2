@@ -32,9 +32,7 @@ class Tokenize:
         pattern = '|'.join(self.countries)
         mathches = re.findall(pattern,tokens.lower())
         removect = re.sub(pattern,"",tokens.lower())
-        print(removect)
         re1 = re.sub(r'[][!-@#|{}\\$?%+:"\n^_\t]'," ",removect)
-        print(re1)
         afteremoji = ""
         """Filter Emoji"""
         for i in re1:
@@ -68,7 +66,3 @@ class Tokenize:
     def make_counter(self, tokens_list:list[str]):
         """Create a counter object for the tokens"""
         return Counter(tokens_list)
-    
-x = 'AfghanistanAlbania Algeria I want to go Zoo'
-token = Tokenize()
-print(token.tokenize(x))
