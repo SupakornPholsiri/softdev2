@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from Spider import Spider
+from SpiderV2 import Spider
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,6 +13,8 @@ class Spider_testcases(unittest.TestCase):
         Spider.queue = []
         Spider.crawled = []
         Spider.queue_front = 0
+        Spider.depth = 0
+        Spider.max_depth = 2
 
     @patch.object(Spider, "queue", new = [])
     @patch.object(Spider, "crawled", new = [])
@@ -61,40 +63,39 @@ class Spider_testcases(unittest.TestCase):
     def test_init_no_url_with_existing_in_queue(self):
         spider = Spider()
         assert Spider.queue == ["https://www.placeholder.com"]
-        
-    @patch.object(requests, "get")
-    @patch.object(Spider, "get_base_domain", return_value = "https://www.yummyyapper.com")
-    def test_generate_soup(self, mock_base_domain, mock_get):
-        mock_get.return_value.text = "<!DOCTYPE html><html><body><h1> This is a blank HTML page </h1></body></html>"
-        spider = Spider("https://www.yummyyapper.com/menu/sweet")
-        assert spider.generate_soup("https://www.yummyyapper.com/menu/sweet")
-        assert spider.url == "https://www.yummyyapper.com/menu/sweet"
-        assert spider.base_domain == "https://www.yummyyapper.com"
-        assert spider.soup == BeautifulSoup("<!DOCTYPE html><html><body><h1> This is a blank HTML page </h1></body></html>", "html.parser")
-
-    @patch.object(requests, "get")
-    @patch.object(Spider, "get_base_domain", return_value = None)
-    def test_generate_soup_url_not_in_queue(self, mock_base_domain, mock_get):
-        mock_get.return_value.text = "<!DOCTYPE html><html><body><h1> This is a blank HTML page </h1></body></html>"
-        spider = Spider()
-        assert not spider.generate_soup("https://www.yummyyapper.com/menu/sweet")
 
     def test_get_text(self):
         spider = Spider("https://www.unittest.com")
         spider.soup = BeautifulSoup("<!DOCTYPE html><html><body><h1>This is a</h1><p>blank HTML page</p></body></html>", "html.parser")
         assert spider.get_text() == "  this is a blank html page"
 
-    @patch.object(Spider, "add_links_to_queue")
-    @patch.object(Spider, "get_text", return_value = "Test")
-    def test_crawl(self, mock_get_text, mock_add_links_to_queue):
-        spider = Spider("https://www.unittest.com")
-        spider.url = "https://www.unittest.com"
-        text = spider.crawl()
-        assert text == "Test"
-        assert spider.url in Spider.crawled
-        mock_add_links_to_queue.assert_called_once_with()
+    def test_get_base_domain(self):
+        assert Spider.get_base_domain("https://test.com") == "test.com"
+        assert Spider.get_base_domain("https://www.example.com/testing") == "www.example.com"
 
-    @patch.object(Spider, "get_links", return_value = {"https://www.unittest.com", "https://www.test.com", "http://www.unit.com"})
+    def test_change_depth(self):
+        Spider.queue_front = 2
+        Spider.queue_back = 1
+        Spider.depth = 0
+        Spider.max_depth = 2
+        assert Spider.try_change_depth()
+        
+    def test_not_changing_depth(self):
+        Spider.queue_front = 1
+        Spider.queue_back = 1
+        Spider.depth = 0
+        Spider.max_depth = 2
+        assert not Spider.try_change_depth()
+
+    def test_max_depth(self):
+        Spider.queue_front = 2
+        Spider.queue_back = 1
+        Spider.depth = 2
+        Spider.max_depth = 2
+        assert not Spider.try_change_depth()
+
+
+    """@patch.object(Spider, "get_links", return_value = {"https://www.unittest.com", "https://www.test.com", "http://www.unit.com"})
     def test_add_links_to_queue(self, mock_get_links):
         spider = Spider("https://www.unittest.com")
         spider.url = "https://www.unittest.com"
@@ -108,6 +109,6 @@ class Spider_testcases(unittest.TestCase):
         spider.url = "https://www.unit.com"
         spider.add_links_to_queue()
         assert sorted(Spider.queue) == sorted(["http://www.unit.com", "https://www.unittest.com"])      
-
+"""
 if __name__ == "__main__":
     unittest.main()

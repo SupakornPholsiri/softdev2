@@ -8,12 +8,14 @@ class Tokenize:
     def __init__(self):
         self.stopword = self.ListOfStopword()
         self.countries = self.ListOfCountries()
+
     def ListOfCountries(self):
         with open("listcountries.txt","r",encoding="utf-8") as f :
             listct = eval(f.read().lower())
             return listct
+        
     def ListOfStopword(self):
-        with open("stop_words_english.txt","r",encoding="utf-8")as f:
+        with open("stop_words_english.txt","r",encoding="utf-8") as f:
             listsw = f.read()
             listsw = listsw.split("\n")
             return listsw
@@ -41,15 +43,15 @@ class Tokenize:
             else:
                 afteremoji += i
         tokenized = word_tokenize(afteremoji)
-        swfilterd = self.FilterStopWord(tokenized)
-        finaltokenized = []
+        lemmatized = []
         lemmatizer = WordNetLemmatizer()
         """Filter empty list"""
-        for x in swfilterd:
+        for x in tokenized:
             if x.startswith(" ") :
                 continue
             else:
-                finaltokenized.append(lemmatizer.lemmatize(x).lower())
+                lemmatized.append(lemmatizer.lemmatize(x).lower())
+        finaltokenized = self.FilterStopWord(lemmatized)
         finaltokenized = finaltokenized + mathches
         return finaltokenized
     

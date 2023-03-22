@@ -5,7 +5,7 @@ import hashlib
 import requests
 import re
 class Spider:
-    #The web crawler
+    """The web crawler"""
     queue = []
     crawled = []
     base_domains = []
@@ -74,6 +74,8 @@ class Spider:
             if Spider.max_depth > Spider.depth:
                 self.add_links_to_queue()
             return None
+        if Spider.max_depth > Spider.depth:
+            self.add_links_to_queue()
         Spider.crawled.append(self.url)
         return (self.get_text(), list(self.get_links()), self.hash)
 
@@ -125,17 +127,15 @@ class Spider:
         for i in texts:
             text = f"{text} {i.text.lower()}"
         return text
-
-    #Probably going to change, not the first priority though.
     
-    #Try to eliminate the url that leads to a file
     def eliminate_file_url(self, splited_url, to_join):
+        """Try to eliminate the url that leads to a file"""
         if "." in splited_url[-1] and splited_url[-1] != "." and splited_url[-1] != "..":
             splited_url.pop()
             to_join.pop()
 
-    #Translate relative or absolute path into full url
     def parse_url(self, url:str, base_url:str):
+        """Translate relative or absolute path into full url"""
         if url[0] == "/": base_url = f"https://{self.get_base_domain(base_url)}"
         url = url.split("#")[0]
         if url[-1] == "/" : url = url[:-1]
@@ -156,8 +156,8 @@ class Spider:
         for i in to_join: new_abs_url = f"{new_abs_url}/{splited_url[i]}"
         return f"{'/'.join(splited_base)}{new_abs_url}"
 
-    #Get links from a elements in html
     def get_links(self):
+        """Get links from a elements in html"""
         links_html = self.soup.find_all("a", href = True)
         links = set()
         for link_html in links_html:

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, Mock, MagicMock, call
 import mongomock
-from IndexV2 import RawInfoIndex, InvertedIndex, Index
+from IndexV2 import RawInfoIndex, Index
 from pymongo import MongoClient
 from collections import Counter
 class RawInfoTest(unittest.TestCase):
@@ -158,62 +158,6 @@ class RawInfoTest(unittest.TestCase):
         assert self.rawInfo.get_ref_count("https://fortesting.com") == 1
         assert self.rawInfo.get_ref_count("https://test.org/signal") == 0
         assert self.rawInfo.get_ref_count("https://dummy.org") == 0
-    
-class TestInvertedIndex(unittest.TestCase):
-    
-    testDB = MongoClient('localhost:27017')["TestSearchEngine"]
-    testDB.dbweb = testDB["WebDB"]
-    
-    def setUp(self):
-        self.db = MagicMock()
-        self.db.dbweb = MagicMock()
-        self.ivi = InvertedIndex()
-        
-    def tearDown(self):
-        self.testDB.drop_collection("WebDB")
-        
-    def test_modify_case1(self):
-        tokens = ["banana","รถยนต์","banana"]
-        url = "www.testcase01.com"
-        result = self.ivi.modify_index_with_tokens(tokens,[],url)
-        self.assertEqual(result,{"banana":{"www.testcase01.com":2},"รถยนต์":{"www.testcase01.com":1}})
-        self.assertEqual(self.ivi.keywords_to_be_updated, {"banana","รถยนต์"})
-        
-    def test_modify_case2(self):
-        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
-        tokens = ["key1","key2","key1","key2"]
-        url = "www.testcase01.com"
-        result = self.ivi.modify_index_with_tokens(tokens,[],url)
-        self.assertEqual(result,{"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}})
-        self.assertEqual(self.ivi.keywords_to_be_updated, {"key2"})
-        
-    def test_modify_case3(self):
-        self.ivi.index ={"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":1}}
-        tokens = ["key1","key2","key3"]
-        url = "www.testcase02.com"
-        result = self.ivi.modify_index_with_tokens(tokens,[],url)
-        self.assertEqual(result,{"key1":{"www.testcase01.com":2,"www.testcase02.com":1},
-                                 "key2":{"www.testcase01.com":1,"www.testcase02.com":1},"key3":{"www.testcase02.com":1}})
-        self.assertEqual(self.ivi.keywords_to_be_updated, {"key1","key2","key3"})
-    
-    def test_savetodatabase_case1(self):
-        self.testDB["WebDB"].insert_one({"key":"key1","value":{"www.existing.com":3}})
-        self.ivi.keywords_to_be_updated = {"key1","key2"}
-        self.ivi.index = {"key1":{"www.testcase01.com":2},"key2":{"www.testcase01.com":2}}
-        self.ivi.save_to_database(self.testDB)
-        result = []
-        for col in self.testDB["WebDB"].find({},{"_id":0,"key":1,"value":1}):
-            col_dict = dict()
-            col_dict["key"] = col["key"]
-            col_dict["value"] = col["value"]
-            result.append(col_dict)
-        self.assertEqual(result,[{"key":"key1","value":{"www.testcase01.com":2}},{"key":"key2","value":{"www.testcase01.com":2}}])
-        
-    def test_read_from_database(self):
-        self.db.dbweb.find.return_value = [
-            {"key":"word1","value":{"www.test01.com":1}},{"key":"word2","value":{"www.test02.com":2}}]
-        self.ivi.read_from_database(self.db)
-        self.assertEqual(self.ivi.index, {"word1":{"www.test01.com":1},"word2":{"www.test02.com":2}})
 
 class TestIndex(unittest.TestCase):
 
@@ -331,8 +275,9 @@ class TestIndex(unittest.TestCase):
 
     def test_get_location_info(self):
         self.index.locations = ["thailand","england","germany"]
-        location = self.index.get_location_info({"thailand":3, "best":1, "germany":2})
-        assert location == {"thailand":3,"germany":2}
+        self.index.location_dict = {"ไทย":"thailand", "อังกฤษ":"england", "เยอรมัน":"germany"}
+        location = self.index.get_location_info({"thailand":3, "best":1, "germany":2, "ไทย":2, "อังกฤษ":4})
+        assert location == {"thailand":5,"germany":2,"england":4}
         
     @patch("IndexV2.Index.get_location_info", return_value = {"thailand":2})
     def test_modify_fw_index(self, mock_location):

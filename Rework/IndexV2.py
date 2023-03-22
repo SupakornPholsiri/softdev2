@@ -78,29 +78,12 @@ class RawInfoIndex:
                 if url in self.index[key]["links"] and key.split("/")[2] != url.split("/")[2]:
                     ref_count += 1
         return ref_count
-    
-    """def save_to_file(self):
-        with open('Raw_info.csv', 'w', encoding="utf-8") as f:
-            for key in self.index.keys():
-                f.write(f'"{key}","{self.index[key]["text"]}","{self.index[key]["links"]}","{self.index[key]["hash"]}"\n')
-        f.close()
-
-    def read_file(self):
-        #Temporary used for output testing.
-        with open('Raw_info.csv', 'r', encoding="utf-8") as f:
-            filecontent = csv.reader(f, quotechar='"')
-            self.index = {row[0]:{"text":row[1], "links":eval(row[2]), "hash":row[3]} for row in filecontent}
-        f.close()"""
 
 class Index:
-    #Class for indexes. Methods related to index are stored here.
 
     def __init__(self):
         self.ivi_index = {}
         self.fw_index = {}
-
-        self.urls_in_queue = []
-        self.urls_queue_front = 0
 
         self.urls_to_be_updated = set()
         self.urls_to_be_removed = []
@@ -119,8 +102,8 @@ class Index:
         return result
     
     def get_location_list(self):
-        with open("EnglishCountry.txt", "r", encoding="utf-8") as f:
-            result = eval(f.read())
+        with open("listcountries.txt", "r", encoding="utf-8") as f:
+            result = eval(f.read().lower())
         return result
 
     def remove_urls(self, urls_to_be_removed:list[str]):
@@ -195,9 +178,15 @@ class Index:
         location = {}
         for token in tokens:
             if token in self.location_dict:
-                location[self.location_dict[token]] = tokens[token]
+                if self.location_dict[token] in location:
+                    location[self.location_dict[token]] += tokens[token]
+                else:
+                    location[self.location_dict[token]] = tokens[token]
             elif token in self.locations:
-                location[token] = tokens[token]
+                if token in location:
+                    location[token] += tokens[token]
+                else:
+                    location[token] = tokens[token]
         return location
 
     def save_ivi_index_to_database(self, database:Database):

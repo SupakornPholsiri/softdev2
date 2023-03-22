@@ -40,6 +40,9 @@ class MainWindow(QMainWindow):
         # Create WebEngineView to display map
         self.map = QWebEngineView()
 
+        # Create WebEngineView to display bar graph
+        self.bar_graph = QWebEngineView()
+
         # Create list widget to display scrape status
         self.scrape_status_widget = QListWidget()
 
@@ -63,6 +66,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(self.list_widget)
         self.stacked_widget.addWidget(self.map)
+        self.stacked_widget.addWidget(self.bar_graph)
 
         self.statusBar().showMessage("Test")
 
@@ -102,7 +106,7 @@ class MainWindow(QMainWindow):
         self.URL_view_widget = QWidget()
         self.URL_view_widget.setLayout(self.URL_view_layout)
 
-        # Create tab widget to switch between search results and scrape status
+        # Create tab widget to switch between search results, scrape status and Add/Remove Website tab
         self.tab_widget = QTabWidget()
         self.tab_widget.addTab(self.search_widget, "Search Results")
         self.tab_widget.addTab(self.scrape_widget, "Scrape Status")
